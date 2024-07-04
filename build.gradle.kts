@@ -1,5 +1,6 @@
 plugins {
     id("java-library")
+    id("maven-publish")
 }
 
 java {
@@ -37,4 +38,43 @@ tasks.register("generateProjectProperties") {
 
 tasks.named("processResources") {
     dependsOn("generateProjectProperties")
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            pom {
+                name = "lara-java"
+                description = "Official Lara SDK for Java"
+                url = "https://lara.translated.com/"
+                licenses {
+                    license {
+                        name = "The MIT License"
+                        url = "https://opensource.org/licenses/MIT"
+                    }
+                }
+                developers {
+                    developer {
+                        id = "translated"
+                        name = "Translated"
+                        url = "https://translated.com/"
+                    }
+                }
+                scm {
+                    connection = "scm:git:git://github.com/translated/lara-java.git"
+                    developerConnection = "scm:git:ssh://github.com/translated/lara-java.git"
+                    url = "https://github.com/translated/lara-java"
+                }
+            }
+
+            from(components["java"])
+        }
+    }
+    repositories {
+        mavenLocal()
+    }
+}
+
+tasks.register("install") {
+    dependsOn("build", "publishToMavenLocal")
 }
