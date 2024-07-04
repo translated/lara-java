@@ -13,13 +13,10 @@ import java.util.UUID;
 class MultipartRequestBody implements RequestBody {
 
     private static final String NL = "\r\n";
-    private static final byte[] NLb = NL.getBytes(StandardCharsets.UTF_8);
 
     private final Map<String, String> params;
     private final Map<String, File> files;
     private final String boundary;
-
-    private final byte[] boundaryBytes;
 
     public MultipartRequestBody(Map<String, Object> params, Map<String, File> files) {
         if (params != null && !params.isEmpty()) {
@@ -31,8 +28,7 @@ class MultipartRequestBody implements RequestBody {
         }
 
         this.files = files != null && !files.isEmpty() ? files : null;
-        this.boundary = "---------------------------LaraClient+" + UUID.randomUUID();
-        this.boundaryBytes = ("--" + boundary + NL).getBytes(StandardCharsets.UTF_8);
+        this.boundary = "---------------------------LaraClient_" + UUID.randomUUID().toString().replace("-", "");
     }
 
     @Override
@@ -61,49 +57,55 @@ class MultipartRequestBody implements RequestBody {
 
     @Override
     public void send(OutputStream body) throws IOException {
+        PrintWriter writer = new PrintWriter(new OutputStreamWriter(body, StandardCharsets.UTF_8));
+
         if (params != null) {
-            for (Map.Entry<String, String> entry : params.entrySet())
-                writeParam(body, entry.getKey(), entry.getValue());
+            for (Map.Entry<String, String> entry : params.entrySet()) {
+                String key = entry.getKey();
+                String value = entry.getValue();
+
+                writer.append("--").append(boundary).append(NL);
+                writer.append("Content-Disposition: form-data; name=\"").append(key).append("\"").append(NL);
+                writer.append(NL);
+                writer.append(value);
+                writer.append(NL);
+            }
         }
+
+        writer.flush();
 
         if (files != null) {
-            for (Map.Entry<String, File> entry : files.entrySet())
-                writeFile(body, entry.getKey(), entry.getValue());
+            for (Map.Entry<String, File> entry : files.entrySet()) {
+                String key = entry.getKey();
+                File value = entry.getValue();
+
+                String filename = value.getName();
+                String contentType = URLConnection.guessContentTypeFromName(filename);
+
+                writer.append("--").append(boundary).append(NL);
+                writer.append("Content-Disposition: form-data; name=\"").append(key).append("\"; filename=\"").append(filename).append("\"").append(NL);
+                writer.append("Content-Type: ").append(contentType).append(NL);
+                writer.append("Content-Transfer-Encoding: binary").append(NL);
+                writer.append(NL);
+                writer.flush();
+
+                try (InputStream inStream = Files.newInputStream(value.toPath())) {
+                    byte[] buffer = new byte[4096];
+
+                    int bytesRead;
+                    while ((bytesRead = inStream.read(buffer)) != -1)
+                        body.write(buffer, 0, bytesRead);
+                }
+                body.flush();
+
+                writer.append(NL);
+                writer.flush();
+            }
         }
 
-        body.write(this.boundaryBytes);
-        body.flush();
-    }
-
-    private void writeParam(OutputStream body, String key, String value) throws IOException {
-        body.write(boundaryBytes);
-        body.write(("Content-Disposition: form-data; name=\"" + key + "\"" + NL).getBytes(StandardCharsets.UTF_8));
-        body.write(NLb);
-        body.write(value.getBytes(StandardCharsets.UTF_8));
-        body.write(NLb);
-        body.flush();
-    }
-
-    private void writeFile(OutputStream body, String key, File value) throws IOException {
-        String filename = value.getName();
-        String contentType = URLConnection.guessContentTypeFromName(filename);
-
-        body.write(boundaryBytes);
-        body.write(("Content-Disposition: form-data; name=\"" + key + "\"; filename=\"" + filename + "\"" + NL).getBytes(StandardCharsets.UTF_8));
-        body.write(("Content-Type: " + contentType + NL).getBytes(StandardCharsets.UTF_8));
-        body.write(("Content-Transfer-Encoding: binary" + NL).getBytes(StandardCharsets.UTF_8));
-        body.write(NLb);
-
-        try (InputStream inStream = Files.newInputStream(value.toPath())) {
-            byte[] buffer = new byte[4096];
-
-            int bytesRead;
-            while ((bytesRead = inStream.read(buffer)) != -1)
-                body.write(buffer, 0, bytesRead);
-        }
-
-        body.write(NLb);
-        body.flush();
+        writer.append("--").append(boundary).append("--").append(NL);
+        writer.flush();
+        writer.close();
     }
 
 }
