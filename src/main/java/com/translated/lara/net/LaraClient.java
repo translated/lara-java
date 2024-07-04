@@ -1,14 +1,20 @@
 package com.translated.lara.net;
 
+import com.google.gson.FieldNamingPolicy;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.translated.lara.Credentials;
 import com.translated.lara.Version;
 import com.translated.lara.errors.LaraApiConnectionException;
 import com.translated.lara.errors.LaraException;
+import com.translated.lara.net.json.TextResultTypeAdapter;
+import com.translated.lara.translator.TextResult;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -22,13 +28,18 @@ import java.util.*;
 public class LaraClient {
 
     private static final String SIGNING_ALGORITHM = "HmacSHA256";
-    private static final String DEFAULT_BASE_URL = "https://api.hellolara.ai";
     private static final SimpleDateFormat HTTP_DATE_FORMAT;
 
     static {
         HTTP_DATE_FORMAT = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.US);
         HTTP_DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("GMT"));
     }
+
+    private final Gson gson = new GsonBuilder()
+            .registerTypeAdapter(TextResult.class, new TextResultTypeAdapter())
+            .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+            .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
+            .create();
 
     private final String baseUrl;
     private final int connectionTimeout;
@@ -37,23 +48,16 @@ public class LaraClient {
     private final Key signingKey;
 
     public LaraClient(Credentials credentials) {
-        this(credentials, null);
+        this(credentials, new ClientOptions());
     }
 
     public LaraClient(Credentials credentials, ClientOptions options) {
         this.accessKeyId = credentials.getAccessKeyId();
         this.signingKey = new SecretKeySpec(credentials.getAccessKeySecret().getBytes(StandardCharsets.UTF_8), SIGNING_ALGORITHM);
 
-        String baseUrl = options != null && options.baseUrl != null ? options.baseUrl : DEFAULT_BASE_URL;
-        long connectionTimeout = options != null && options.connectionTimeoutMs > 0 ? options.connectionTimeoutMs : 0;
-        long readTimeout = options != null && options.readTimeoutMs > 0 ? options.readTimeoutMs : 0;
-
-        while (baseUrl.endsWith("/"))
-            baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
-
-        this.baseUrl = baseUrl;
-        this.connectionTimeout = (int) connectionTimeout;
-        this.readTimeout = (int) readTimeout;
+        this.baseUrl = options.getServerUrl();
+        this.connectionTimeout = (int) options.getConnectionTimeoutMs();
+        this.readTimeout = (int) options.getReadTimeoutMs();
     }
 
     public ClientResponse get(String path) throws LaraApiConnectionException {
@@ -104,7 +108,7 @@ public class LaraClient {
         RequestBody body = null;
         if (params != null || files != null) {
             if (files == null)
-                body = new JsonRequestBody(params);
+                body = new JsonRequestBody(gson, params);
             else
                 body = new MultipartRequestBody(params, files);
         }
@@ -135,10 +139,12 @@ public class LaraClient {
             // body
             if (body != null) {
                 connection.setDoOutput(true);
-                body.send(connection);
+                try (OutputStream out = connection.getOutputStream()) {
+                    body.send(out);
+                }
             }
 
-            return new ClientResponse(connection);
+            return new ClientResponse(gson, connection);
         } catch (IOException e) {
             throw new LaraApiConnectionException("Failed to connect to URL: " + baseUrl + path, e);
         }

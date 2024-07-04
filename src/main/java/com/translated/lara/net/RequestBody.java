@@ -1,6 +1,7 @@
 package com.translated.lara.net;
 
-import java.net.HttpURLConnection;
+import java.io.IOException;
+import java.io.OutputStream;
 
 interface RequestBody {
 
@@ -8,6 +9,6 @@ interface RequestBody {
 
     String contentType();
 
-    void send(HttpURLConnection connection);
+    void send(OutputStream body) throws IOException;
 
 }

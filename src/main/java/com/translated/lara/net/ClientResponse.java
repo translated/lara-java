@@ -13,14 +13,18 @@ import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ClientResponse {
 
+    private final Gson gson;
     private final LaraApiException error;
     private final JsonElement data;
 
-    public ClientResponse(HttpURLConnection connection) throws LaraApiConnectionException {
+    ClientResponse(Gson gson, HttpURLConnection connection) throws LaraApiConnectionException {
+        this.gson = gson;
+
         int httpStatus;
         try {
             httpStatus = connection.getResponseCode();
@@ -60,18 +64,16 @@ public class ClientResponse {
 
     public <T> T as(Class<T> clazz) throws LaraApiException {
         if (error != null) throw error;
-        return LaraJson.get().fromJson(data, clazz);
+        return gson.fromJson(data, clazz);
     }
 
     public <T> List<T> asList(Class<T> clazz) throws LaraApiException {
         if (error != null) throw error;
 
-        Gson gson = LaraJson.get();
-
         ArrayList<T> list = new ArrayList<>();
         for (JsonElement element : data.getAsJsonArray())
             list.add(gson.fromJson(element, clazz));
-        return list;
+        return Collections.unmodifiableList(list);
     }
 
 }
