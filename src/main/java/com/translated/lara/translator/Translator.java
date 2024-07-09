@@ -3,6 +3,7 @@ package com.translated.lara.translator;
 import com.translated.lara.Credentials;
 import com.translated.lara.errors.LaraException;
 import com.translated.lara.net.ClientOptions;
+import com.translated.lara.net.HttpParams;
 import com.translated.lara.net.LaraClient;
 
 import java.util.List;
@@ -66,12 +67,13 @@ public class Translator {
     }
 
     private TextResult translateAny(Object text, String source, String target, TranslateOptions options) throws LaraException {
-        return client.post("/translate",
-                TranslateOptions.toParams(options)
-                        .set("source", source)
-                        .set("target", target)
-                        .set("q", text)
-                        .build()
+        HttpParams<Object> params = options == null ? new HttpParams<>() : options.toParams();
+
+        return client.post("/translate", params
+                .set("source", source)
+                .set("target", target)
+                .set("q", text)
+                .build()
         ).as(TextResult.class);
     }
 

@@ -18,21 +18,6 @@ public class TranslateOptions {
     private Long timeoutMs = null;
     private Priority priority = null;
 
-    static HttpParams<Object> toParams(TranslateOptions options) {
-        HttpParams<Object> params = new HttpParams<>();
-        if (options != null) {
-            params.set("source_hint", options.sourceHint);
-            params.set("adapt_to", options.adaptTo);
-            params.set("instructions", options.instructions);
-            params.set("content_type", options.contentType);
-            params.set("multiline", options.multiline);
-            params.set("timeout", options.timeoutMs);
-            params.set("priority", options.priority);
-        }
-
-        return params;
-    }
-
     public String getSourceHint() {
         return sourceHint;
     }
@@ -104,6 +89,23 @@ public class TranslateOptions {
     public TranslateOptions setPriority(Priority priority) {
         this.priority = priority;
         return this;
+    }
+
+    HttpParams<Object> toParams() {
+        HttpParams<Object> params = new HttpParams<>();
+        params.set("source_hint", sourceHint);
+        params.set("adapt_to", adaptTo);
+        params.set("instructions", instructions);
+        params.set("content_type", contentType);
+        params.set("multiline", multiline);
+        params.set("timeout", timeoutMs);
+        params.set("priority", toString(priority));
+
+        return params;
+    }
+
+    private static String toString(Priority priority) {
+        return priority != null ? priority.toString().toLowerCase() : null;
     }
 
 }
