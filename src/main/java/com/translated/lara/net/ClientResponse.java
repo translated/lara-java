@@ -46,18 +46,18 @@ public class ClientResponse {
             this.error = null;
             this.data = response;
         } else {
-            String name = "UnknownError";
+            String type = "UnknownError";
             String message = "An unknown error occurred";
 
             if (response != null) {
                 JsonObject error = response.getAsJsonObject();
                 if (error.has("type"))
-                    name = error.get("type").getAsString();
+                    type = error.get("type").getAsString();
                 if (error.has("message"))
                     message = error.get("message").getAsString();
             }
 
-            this.error = new LaraApiException(httpStatus, name, message);
+            this.error = new LaraApiException(httpStatus, type, message);
             this.data = null;
         }
     }

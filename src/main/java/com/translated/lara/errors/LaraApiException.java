@@ -4,14 +4,12 @@ public class LaraApiException extends LaraException {
 
     private final int statusCode;
     private final String type;
-    private final String errorMessage;
 
-    public LaraApiException(int statusCode, String name, String errorMessage) {
-        super(String.format("[HTTP %d] %s: %s", statusCode, name, errorMessage));
+    public LaraApiException(int statusCode, String type, String message) {
+        super(message);
 
         this.statusCode = statusCode;
-        this.type = name;
-        this.errorMessage = errorMessage;
+        this.type = type;
     }
 
     public int getStatusCode() {
@@ -20,10 +18,6 @@ public class LaraApiException extends LaraException {
 
     public String getType() {
         return type;
-    }
-
-    public String getErrorMessage() {
-        return errorMessage;
     }
 
 }
