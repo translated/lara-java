@@ -2,20 +2,20 @@ package com.translated.lara.errors;
 
 public class LaraApiException extends LaraException {
 
-    private final int httpCode;
+    private final int statusCode;
     private final String type;
     private final String errorMessage;
 
-    public LaraApiException(int httpCode, String name, String errorMessage) {
-        super(String.format("[HTTP %d] %s: %s", httpCode, name, errorMessage));
+    public LaraApiException(int statusCode, String name, String errorMessage) {
+        super(String.format("[HTTP %d] %s: %s", statusCode, name, errorMessage));
 
-        this.httpCode = httpCode;
+        this.statusCode = statusCode;
         this.type = name;
         this.errorMessage = errorMessage;
     }
 
-    public int getHttpCode() {
-        return httpCode;
+    public int getStatusCode() {
+        return statusCode;
     }
 
     public String getType() {

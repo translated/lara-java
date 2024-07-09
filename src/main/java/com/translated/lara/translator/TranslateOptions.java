@@ -6,12 +6,17 @@ import java.util.List;
 
 public class TranslateOptions {
 
+    public enum Priority {
+        NORMAL, BACKGROUND
+    }
+
     private String sourceHint = null;
     private String[] adaptTo = null;
     private String[] instructions = null;
     private String contentType = null;
     private Boolean multiline = null;
     private Long timeoutMs = null;
+    private Priority priority = null;
 
     static HttpParams<Object> toParams(TranslateOptions options) {
         HttpParams<Object> params = new HttpParams<>();
@@ -22,6 +27,7 @@ public class TranslateOptions {
             params.set("content_type", options.contentType);
             params.set("multiline", options.multiline);
             params.set("timeout", options.timeoutMs);
+            params.set("priority", options.priority);
         }
 
         return params;
@@ -88,6 +94,15 @@ public class TranslateOptions {
 
     public TranslateOptions setTimeoutMs(long timeoutMs) {
         this.timeoutMs = timeoutMs;
+        return this;
+    }
+
+    public Priority getPriority() {
+        return priority;
+    }
+
+    public TranslateOptions setPriority(Priority priority) {
+        this.priority = priority;
         return this;
     }
 

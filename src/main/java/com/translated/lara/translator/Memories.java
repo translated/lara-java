@@ -47,7 +47,7 @@ public class Memories {
         try {
             return client.get("/memories/" + id).as(Memory.class);
         } catch (LaraApiException e) {
-            if (e.getHttpCode() == 404) {
+            if (e.getStatusCode() == 404) {
                 return null;
             }
 
