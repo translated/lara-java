@@ -10,6 +10,10 @@ public class TranslateOptions {
         NORMAL, BACKGROUND
     }
 
+    public enum UseCache {
+        YES, NO, OVERWRITE
+    }
+
     private String sourceHint = null;
     private String[] adaptTo = null;
     private String[] instructions = null;
@@ -17,6 +21,8 @@ public class TranslateOptions {
     private Boolean multiline = null;
     private Long timeoutMs = null;
     private Priority priority = null;
+    private UseCache useCache = null;
+    private Integer cacheTTL = null;
 
     public String getSourceHint() {
         return sourceHint;
@@ -91,6 +97,24 @@ public class TranslateOptions {
         return this;
     }
 
+    public UseCache getUseCache() {
+        return useCache;
+    }
+
+    public TranslateOptions setUseCache(UseCache useCache) {
+        this.useCache = useCache;
+        return this;
+    }
+
+    public Integer getCacheTTL() {
+        return cacheTTL;
+    }
+
+    public TranslateOptions setCacheTTL(Integer cacheTTL) {
+        this.cacheTTL = cacheTTL;
+        return this;
+    }
+
     HttpParams<Object> toParams() {
         HttpParams<Object> params = new HttpParams<>();
         params.set("source_hint", sourceHint);
@@ -100,12 +124,18 @@ public class TranslateOptions {
         params.set("multiline", multiline);
         params.set("timeout", timeoutMs);
         params.set("priority", toString(priority));
+        params.set("use_cache", toString(useCache));
+        params.set("cache_ttl", cacheTTL);
 
         return params;
     }
 
     private static String toString(Priority priority) {
         return priority != null ? priority.toString().toLowerCase() : null;
+    }
+
+    private static String toString(UseCache useCache) {
+        return useCache != null ? useCache.toString().toLowerCase() : null;
     }
 
 }
