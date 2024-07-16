@@ -9,7 +9,7 @@ java {
 }
 
 group = "com.translated.lara"
-version = "1.1.2"
+version = "1.2.0"
 
 repositories {
     mavenCentral()
