@@ -3,10 +3,8 @@ name: Publish package to the Maven Central Repository
 on:
   workflow_dispatch:
   push:
-    branches:
-      - features/git-action-release
-#    tags:
-#      - v*
+    tags:
+      - v*
 
 jobs:
   publish:
@@ -15,8 +13,6 @@ jobs:
     environment: release
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: features/git-action-release
       - name: Set up Maven
         uses: actions/setup-java@v4
         with:
