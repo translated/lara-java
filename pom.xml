@@ -86,10 +86,7 @@
                                     <goal>sign</goal>
                                 </goals>
                                 <configuration>
-                                    <gpgArguments>
-                                        <argument>--pinentry-mode</argument>
-                                        <argument>loopback</argument>
-                                    </gpgArguments>
+                                    <signer>bc</signer>
                                 </configuration>
                             </execution>
                         </executions>
