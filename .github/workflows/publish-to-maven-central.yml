@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          path: features/git-action-release
+          ref: features/git-action-release
       - name: Set up Maven
         uses: actions/setup-java@v4
         with:
