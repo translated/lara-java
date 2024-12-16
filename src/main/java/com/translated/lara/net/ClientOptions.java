@@ -2,7 +2,7 @@ package com.translated.lara.net;
 
 public class ClientOptions {
 
-    private static final String DEFAULT_SERVER_URL = "https://api.hellolara.ai";
+    private static final String DEFAULT_SERVER_URL = "https://api.laratranslate.com";
 
     private String serverUrl = null;
     private long connectionTimeoutMs = 0;
