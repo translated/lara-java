@@ -14,7 +14,7 @@ public class Translator {
     public final Memories memories;
 
     public Translator(Credentials credentials) {
-        this(credentials, null);
+        this(credentials, new ClientOptions());
     }
 
     public Translator(Credentials credentials, ClientOptions options) {
