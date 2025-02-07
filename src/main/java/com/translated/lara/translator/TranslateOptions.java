@@ -3,6 +3,7 @@ package com.translated.lara.translator;
 import com.translated.lara.net.HttpParams;
 
 import java.util.List;
+import java.util.Map;
 
 public class TranslateOptions {
 
@@ -17,6 +18,7 @@ public class TranslateOptions {
     private String sourceHint = null;
     private String[] adaptTo = null;
     private String[] instructions = null;
+    private Map<String, Object> extras = null;
     private String contentType = null;
     private Boolean multiline = null;
     private Long timeoutMs = null;
@@ -58,6 +60,15 @@ public class TranslateOptions {
 
     public TranslateOptions setInstructions(String... instructions) {
         this.instructions = instructions;
+        return this;
+    }
+
+    public Map<String, Object>  getExtras() {
+        return extras;
+    }
+
+    public TranslateOptions setExtras(Map<String, Object> extras) {
+        this.extras = extras;
         return this;
     }
 
@@ -120,6 +131,7 @@ public class TranslateOptions {
         params.set("source_hint", sourceHint);
         params.set("adapt_to", adaptTo);
         params.set("instructions", instructions);
+        params.set("extras", extras);
         params.set("content_type", contentType);
         params.set("multiline", multiline);
         params.set("timeout", timeoutMs);

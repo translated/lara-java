@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public class TextResult {
 
@@ -15,7 +16,9 @@ public class TextResult {
     private final List<String> translations;
     private final List<TextBlock> translationBlocks;
 
-    public TextResult(String contentType, String sourceLanguage, String translation, String[] adaptedTo) {
+    private final Map<String, Object> extras;
+
+    public TextResult(String contentType, String sourceLanguage, String translation, String[] adaptedTo, Map<String, Object> extras) {
         this.contentType = contentType;
         this.sourceLanguage = sourceLanguage;
         this.adaptedTo = adaptedTo == null ? null : Collections.unmodifiableList(Arrays.asList(adaptedTo));
@@ -23,9 +26,11 @@ public class TextResult {
         this.translation = translation;
         this.translations = null;
         this.translationBlocks = null;
+
+        this.extras = extras;
     }
 
-    public TextResult(String contentType, String sourceLanguage, String[] translation, String[] adaptedTo) {
+    public TextResult(String contentType, String sourceLanguage, String[] translation, String[] adaptedTo, Map<String, Object> extras) {
         this.contentType = contentType;
         this.sourceLanguage = sourceLanguage;
         this.adaptedTo = adaptedTo == null ? null : Collections.unmodifiableList(Arrays.asList(adaptedTo));
@@ -33,9 +38,11 @@ public class TextResult {
         this.translation = null;
         this.translations = Collections.unmodifiableList(Arrays.asList(translation));
         this.translationBlocks = null;
+
+        this.extras = extras;
     }
 
-    public TextResult(String contentType, String sourceLanguage, TextBlock[] translation, String[] adaptedTo) {
+    public TextResult(String contentType, String sourceLanguage, TextBlock[] translation, String[] adaptedTo, Map<String, Object> extras) {
         this.contentType = contentType;
         this.sourceLanguage = sourceLanguage;
         this.adaptedTo = adaptedTo == null ? null : Collections.unmodifiableList(Arrays.asList(adaptedTo));
@@ -43,6 +50,8 @@ public class TextResult {
         this.translation = null;
         this.translations = null;
         this.translationBlocks = Collections.unmodifiableList(Arrays.asList(translation));
+
+        this.extras = extras;
     }
 
     public String getContentType() {
@@ -110,6 +119,10 @@ public class TextResult {
         }
 
         return null;
+    }
+
+    public Map<String, Object> getExtras() {
+        return extras;
     }
 
     @Override
