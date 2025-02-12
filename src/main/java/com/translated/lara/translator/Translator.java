@@ -10,7 +10,7 @@ import java.util.List;
 
 public class Translator {
 
-    private final LaraClient client;
+    protected final LaraClient client;
     public final Memories memories;
 
     public Translator(Credentials credentials) {
@@ -66,7 +66,7 @@ public class Translator {
         return translateAny(text, source, target, options);
     }
 
-    private TextResult translateAny(Object text, String source, String target, TranslateOptions options) throws LaraException {
+    protected TextResult translateAny(Object text, String source, String target, TranslateOptions options) throws LaraException {
         HttpParams<Object> params = options == null ? new HttpParams<>() : options.toParams();
 
         return client.post("/translate", params

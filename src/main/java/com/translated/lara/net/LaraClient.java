@@ -7,7 +7,7 @@ import com.translated.lara.Credentials;
 import com.translated.lara.Version;
 import com.translated.lara.errors.LaraApiConnectionException;
 import com.translated.lara.errors.LaraException;
-import com.translated.lara.net.json.TextResultTypeAdapter;
+import com.translated.lara.net.json.TextResultValueTypeAdapter;
 import com.translated.lara.translator.TextResult;
 
 import javax.crypto.Mac;
@@ -36,7 +36,7 @@ public class LaraClient {
     }
 
     private final Gson gson = new GsonBuilder()
-            .registerTypeAdapter(TextResult.class, new TextResultTypeAdapter())
+            .registerTypeAdapter(TextResult.Value.class, new TextResultValueTypeAdapter())
             .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
             .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
             .create();
@@ -46,6 +46,7 @@ public class LaraClient {
     private final int readTimeout;
     private final String accessKeyId;
     private final Key signingKey;
+    private final Map<String, String> extraHeaders = new HashMap<>();
 
     public LaraClient(Credentials credentials) {
         this(credentials, new ClientOptions());
@@ -58,6 +59,10 @@ public class LaraClient {
         this.baseUrl = options.getServerUrl();
         this.connectionTimeout = (int) options.getConnectionTimeoutMs();
         this.readTimeout = (int) options.getReadTimeoutMs();
+    }
+
+    public void setExtraHeader(String name, String value) {
+        extraHeaders.put(name, value);
     }
 
     public ClientResponse get(String path) throws LaraApiConnectionException {
@@ -132,6 +137,10 @@ public class LaraClient {
                 connection.setRequestProperty("Content-Type", body.contentType());
             }
             connection.setRequestProperty("Authorization", "Lara " + accessKeyId + ":" + sign(method, path, connection));
+
+            // extra headers
+            for (Map.Entry<String, String> header : extraHeaders.entrySet())
+                connection.setRequestProperty(header.getKey(), header.getValue());
 
             // http method
             connection.setRequestMethod("POST");
