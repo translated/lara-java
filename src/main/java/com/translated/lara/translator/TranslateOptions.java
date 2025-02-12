@@ -115,7 +115,7 @@ public class TranslateOptions {
         return this;
     }
 
-    HttpParams<Object> toParams() {
+    public HttpParams<Object> toParams() {
         HttpParams<Object> params = new HttpParams<>();
         params.set("source_hint", sourceHint);
         params.set("adapt_to", adaptTo);
