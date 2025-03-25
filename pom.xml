@@ -23,7 +23,8 @@
         <developer>
             <id>translated</id>
             <name>Translated</name>
-            <organizationUrl>https://translated.com/</organizationUrl>
+            <email>support@laratranslate.com</email>
+            <organizationUrl>https://laratranslate.com/</organizationUrl>
         </developer>
     </developers>
 
