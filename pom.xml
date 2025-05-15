@@ -9,7 +9,7 @@
 
     <name>Lara SDK</name>
     <description>Official Lara SDK for Java</description>
-    <url>https://github.com/translated/lara-java</url>
+    <url>https://laratranslate.com</url>
 
     <licenses>
         <license>
@@ -18,15 +18,6 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
-
-    <developers>
-        <developer>
-            <id>translated</id>
-            <name>Translated</name>
-            <email>support@laratranslate.com</email>
-            <organizationUrl>https://laratranslate.com/</organizationUrl>
-        </developer>
-    </developers>
 
     <scm>
         <url>https://github.com/translated/lara-java</url>
