@@ -76,7 +76,7 @@ public class Documents {
      * Downloads the translated document.
      * @param id the document ID
      * @return an InputStream to read the downloaded document
-     * @throws IOException
+     * @throws S3Exception
      * @throws LaraException
      */
     public InputStream download(String id, DocumentDownloadOptions options) throws S3Exception, LaraException {
@@ -105,8 +105,9 @@ public class Documents {
      * @param target the target language
      * @param options the translation options (optional)
      * @return an InputStream to read the translated document
-     * @throws IOException
+     * @throws S3Exception
      * @throws LaraException
+     * @throws InterruptedException
      */
     public InputStream translate(File input, String source, String target, DocumentTranslateOptions options) throws S3Exception, LaraException, InterruptedException {
         DocumentUploadOptions uploadOptions = options != null ? new DocumentUploadOptions() : null;
