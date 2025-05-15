@@ -19,6 +19,14 @@
         </license>
     </licenses>
 
+    <developers>
+        <developer>
+            <id>translated</id>
+            <name>Translated</name>
+            <email>support@laratranslate.com</email>
+        </developer>
+    </developers>
+
     <scm>
         <url>https://github.com/translated/lara-java</url>
         <connection>scm:git:git://github.com/translated/lara-java.git</connection>
