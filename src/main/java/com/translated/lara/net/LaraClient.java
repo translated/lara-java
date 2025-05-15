@@ -7,7 +7,9 @@ import com.translated.lara.Credentials;
 import com.translated.lara.Version;
 import com.translated.lara.errors.LaraApiConnectionException;
 import com.translated.lara.errors.LaraException;
+import com.translated.lara.net.json.DocumentStatusTypeAdapter;
 import com.translated.lara.net.json.TextResultValueTypeAdapter;
+import com.translated.lara.translator.Document;
 import com.translated.lara.translator.TextResult;
 
 import javax.crypto.Mac;
@@ -37,6 +39,7 @@ public class LaraClient {
 
     private final Gson gson = new GsonBuilder()
             .registerTypeAdapter(TextResult.Value.class, new TextResultValueTypeAdapter())
+            .registerTypeAdapter(Document.Status.class, new DocumentStatusTypeAdapter())
             .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
             .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
             .create();
