@@ -6,7 +6,9 @@ import com.translated.lara.net.ClientOptions;
 import com.translated.lara.net.HttpParams;
 import com.translated.lara.net.LaraClient;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Translator {
 
@@ -71,11 +73,18 @@ public class Translator {
     protected TextResult translateAny(Object text, String source, String target, TranslateOptions options) throws LaraException {
         HttpParams<Object> params = options == null ? new HttpParams<>() : options.toParams();
 
+        Map<String, String> headers = new HashMap<>();
+        if (options != null && options.getNoTrace()) {
+            headers.put("X-No-Trace", "true");
+        }
+
         return client.post("/translate", params
                 .set("source", source)
                 .set("target", target)
                 .set("q", text)
-                .build()
+                .build(),
+                null,
+                headers
         ).as(TextResult.class);
     }
 

@@ -55,7 +55,12 @@ public class Documents {
                 .set("source", source)
                 .set("s3key", s3key);
 
-        return client.post("/documents", params.build()).as(Document.class);
+        Map<String, String> headers = new HashMap<>();
+        if (options != null && options.getNoTrace()) {
+            headers.put("X-No-Trace", "true");
+        }
+
+        return client.post("/documents", params.build(), null, headers).as(Document.class);
     }
 
     /***
@@ -112,6 +117,7 @@ public class Documents {
     public InputStream translate(File input, String source, String target, DocumentTranslateOptions options) throws S3Exception, LaraException, InterruptedException {
         DocumentUploadOptions uploadOptions = options != null ? new DocumentUploadOptions() : null;
         if (options != null && options.getAdaptTo() != null) uploadOptions.setAdaptTo(options.getAdaptTo());
+        if (options != null && options.getNoTrace()) uploadOptions.setNoTrace(true);
 
         Document document = upload(input, source, target, uploadOptions);
         document = pollDocumentUntilCompleted(document);

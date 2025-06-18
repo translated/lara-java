@@ -8,6 +8,7 @@ public class DocumentTranslateOptions {
 
     private String[] adaptTo = null;
     private String outputFormat = null;
+    private Boolean noTrace = null;
 
     public String[] getAdaptTo() {
         return adaptTo;
@@ -29,6 +30,15 @@ public class DocumentTranslateOptions {
 
     public DocumentTranslateOptions setOutputFormat(String outputFormat) {
         this.outputFormat = outputFormat;
+        return this;
+    }
+
+    public Boolean getNoTrace() {
+        return noTrace;
+    }
+
+    public DocumentTranslateOptions setNoTrace(Boolean noTrace) {
+        this.noTrace = noTrace;
         return this;
     }
 

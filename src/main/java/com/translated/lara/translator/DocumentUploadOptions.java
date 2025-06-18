@@ -7,6 +7,7 @@ import java.util.List;
 public class DocumentUploadOptions {
 
     private String[] adaptTo = null;
+    private Boolean noTrace = null;
 
     public String[] getAdaptTo() {
         return adaptTo;
@@ -19,6 +20,15 @@ public class DocumentUploadOptions {
 
     public DocumentUploadOptions setAdaptTo(String... adaptTo) {
         this.adaptTo = adaptTo;
+        return this;
+    }
+
+    public Boolean getNoTrace() {
+        return noTrace;
+    }
+
+    public DocumentUploadOptions setNoTrace(Boolean noTrace) {
+        this.noTrace = noTrace;
         return this;
     }
 

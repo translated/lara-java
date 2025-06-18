@@ -69,46 +69,62 @@ public class LaraClient {
     }
 
     public ClientResponse get(String path) throws LaraApiConnectionException {
-        return get(path, null);
+        return get(path, null, null);
     }
 
     public ClientResponse get(String path, Map<String, Object> params) throws LaraApiConnectionException {
-        return request("GET", path, params, null);
+        return get(path, params, null);
+    }
+
+    public ClientResponse get(String path, Map<String, Object> params, Map<String, String> headers) throws LaraApiConnectionException {
+        return request("GET", path, params, null, headers);
     }
 
     public ClientResponse delete(String path) throws LaraException {
-        return delete(path, null);
+        return delete(path, null, null);
     }
 
-    public ClientResponse delete(String path, Map<String, Object> params) throws LaraApiConnectionException {
-        return request("DELETE", path, params, null);
+    public ClientResponse delete(String path, Map<String, Object> params) throws LaraException {
+        return delete(path, params, null);
+    }
+
+    public ClientResponse delete(String path, Map<String, Object> params, Map<String, String> headers) throws LaraApiConnectionException {
+        return request("DELETE", path, params, null, headers);
     }
 
     public ClientResponse post(String path) throws LaraException {
-        return post(path, null, null);
+        return post(path, null, null, null);
     }
 
-    public ClientResponse post(String path, Map<String, Object> params) throws LaraApiConnectionException {
-        return post(path, params, null);
+    public ClientResponse post(String path, Map<String, Object> params) throws LaraException {
+        return post(path, params, null, null);
     }
 
     public ClientResponse post(String path, Map<String, Object> params, Map<String, File> files) throws LaraApiConnectionException {
-        return request("POST", path, params, files);
+        return post(path, params, files, null);
+    }
+
+    public ClientResponse post(String path, Map<String, Object> params, Map<String, File> files, Map<String, String> headers) throws LaraApiConnectionException {
+        return request("POST", path, params, files, headers);
     }
 
     public ClientResponse put(String path) throws LaraException {
-        return put(path, null, null);
+        return put(path, null, null, null);
     }
 
     public ClientResponse put(String path, Map<String, Object> params) throws LaraApiConnectionException {
-        return put(path, params, null);
+        return put(path, params, null, null);
     }
 
     public ClientResponse put(String path, Map<String, Object> params, Map<String, File> files) throws LaraApiConnectionException {
-        return request("PUT", path, params, files);
+        return put(path, params, files, null);
     }
 
-    private ClientResponse request(String method, String path, Map<String, Object> params, Map<String, File> files) throws LaraApiConnectionException {
+    public ClientResponse put(String path, Map<String, Object> params, Map<String, File> files, Map<String, String> headers) throws LaraApiConnectionException {
+        return request("PUT", path, params, files, headers);
+    }
+
+    private ClientResponse request(String method, String path, Map<String, Object> params, Map<String, File> files, Map<String, String> headers) throws LaraApiConnectionException {
         path = normalizePath(path);
         params = prune(params);
         files = prune(files);
@@ -144,6 +160,12 @@ public class LaraClient {
             // extra headers
             for (Map.Entry<String, String> header : extraHeaders.entrySet())
                 connection.setRequestProperty(header.getKey(), header.getValue());
+
+            // headers
+            if (headers != null) {
+                for (Map.Entry<String, String> header : headers.entrySet())
+                    connection.setRequestProperty(header.getKey(), header.getValue());
+            }
 
             // http method
             connection.setRequestMethod("POST");

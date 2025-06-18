@@ -23,6 +23,7 @@ public class TranslateOptions {
     private Priority priority = null;
     private UseCache useCache = null;
     private Integer cacheTTL = null;
+    private Boolean noTrace = null;
 
     public String getSourceHint() {
         return sourceHint;
@@ -112,6 +113,15 @@ public class TranslateOptions {
 
     public TranslateOptions setCacheTTL(Integer cacheTTL) {
         this.cacheTTL = cacheTTL;
+        return this;
+    }
+
+    public Boolean getNoTrace() {
+        return noTrace;
+    }
+
+    public TranslateOptions setNoTrace(boolean noTrace) {
+        this.noTrace = noTrace;
         return this;
     }
 
