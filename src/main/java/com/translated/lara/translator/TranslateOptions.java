@@ -24,6 +24,7 @@ public class TranslateOptions {
     private UseCache useCache = null;
     private Integer cacheTTL = null;
     private Boolean noTrace = null;
+    private Boolean verbose = null;
 
     public String getSourceHint() {
         return sourceHint;
@@ -125,6 +126,15 @@ public class TranslateOptions {
         return this;
     }
 
+    public Boolean getVerbose() {
+        return verbose;
+    }
+
+    public TranslateOptions setVerbose(Boolean verbose) {
+        this.verbose = verbose;
+        return this;
+    }
+
     public HttpParams<Object> toParams() {
         HttpParams<Object> params = new HttpParams<>();
         params.set("source_hint", sourceHint);
@@ -136,6 +146,7 @@ public class TranslateOptions {
         params.set("priority", toString(priority));
         params.set("use_cache", toString(useCache));
         params.set("cache_ttl", cacheTTL);
+        params.set("verbose", verbose);
 
         return params;
     }
