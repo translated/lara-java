@@ -15,6 +15,7 @@ public class Translator {
     protected final LaraClient client;
     public final Memories memories;
     public final Documents documents;
+    public final Glossaries glossaries;
 
     public Translator(Credentials credentials) {
         this(credentials, new ClientOptions());
@@ -24,6 +25,7 @@ public class Translator {
         this.client = new LaraClient(credentials, options);
         this.memories = new Memories(client);
         this.documents = new Documents(client);
+        this.glossaries = new Glossaries(client);
     }
 
     public List<String> getLanguages() throws LaraException {

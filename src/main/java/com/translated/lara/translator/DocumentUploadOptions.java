@@ -7,6 +7,7 @@ import java.util.List;
 public class DocumentUploadOptions {
 
     private String[] adaptTo = null;
+    private String[] glossaries = null;
     private Boolean noTrace = null;
 
     public String[] getAdaptTo() {
@@ -23,6 +24,20 @@ public class DocumentUploadOptions {
         return this;
     }
 
+    public String[] getGlossaries() {
+        return glossaries;
+    }
+
+    public DocumentUploadOptions setGlossaries(List<String> glossaries) {
+        this.glossaries = glossaries != null ? glossaries.toArray(new String[0]) : null;
+        return this;
+    }
+
+    public DocumentUploadOptions setGlossaries(String... glossaries) {
+        this.glossaries = glossaries;
+        return this;
+    }
+
     public Boolean getNoTrace() {
         return noTrace;
     }
@@ -35,6 +50,7 @@ public class DocumentUploadOptions {
     public HttpParams<Object> toParams() {
         HttpParams<Object> params = new HttpParams<>();
         params.set("adapt_to", adaptTo);
+        params.set("glossaries", glossaries);
 
         return params;
     }

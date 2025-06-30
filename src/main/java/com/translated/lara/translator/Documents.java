@@ -117,6 +117,7 @@ public class Documents {
     public InputStream translate(File input, String source, String target, DocumentTranslateOptions options) throws S3Exception, LaraException, InterruptedException {
         DocumentUploadOptions uploadOptions = options != null ? new DocumentUploadOptions() : null;
         if (options != null && options.getAdaptTo() != null) uploadOptions.setAdaptTo(options.getAdaptTo());
+        if (options != null && options.getGlossaries() != null) uploadOptions.setGlossaries(options.getGlossaries());
         if (options != null && options.getNoTrace()) uploadOptions.setNoTrace(true);
 
         Document document = upload(input, source, target, uploadOptions);

@@ -16,6 +16,7 @@ public class TranslateOptions {
 
     private String sourceHint = null;
     private String[] adaptTo = null;
+    private String[] glossaries = null;
     private String[] instructions = null;
     private String contentType = null;
     private Boolean multiline = null;
@@ -46,6 +47,20 @@ public class TranslateOptions {
 
     public TranslateOptions setAdaptTo(String... adaptTo) {
         this.adaptTo = adaptTo;
+        return this;
+    }
+
+    public String[] getGlossaries() {
+        return glossaries;
+    }
+
+    public TranslateOptions setGlossaries(List<String> glossaries) {
+        this.glossaries = glossaries != null ? glossaries.toArray(new String[0]) : null;
+        return this;
+    }
+
+    public TranslateOptions setGlossaries(String... glossaries) {
+        this.glossaries = glossaries;
         return this;
     }
 
@@ -139,6 +154,7 @@ public class TranslateOptions {
         HttpParams<Object> params = new HttpParams<>();
         params.set("source_hint", sourceHint);
         params.set("adapt_to", adaptTo);
+        params.set("glossaries", glossaries);
         params.set("instructions", instructions);
         params.set("content_type", contentType);
         params.set("multiline", multiline);

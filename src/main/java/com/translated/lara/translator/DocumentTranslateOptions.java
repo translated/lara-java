@@ -7,6 +7,7 @@ import java.util.List;
 public class DocumentTranslateOptions {
 
     private String[] adaptTo = null;
+    private String[] glossaries = null;
     private String outputFormat = null;
     private Boolean noTrace = null;
 
@@ -33,6 +34,20 @@ public class DocumentTranslateOptions {
         return this;
     }
 
+    public String[] getGlossaries() {
+        return glossaries;
+    }
+
+    public DocumentTranslateOptions setGlossaries(List<String> glossaries) {
+        this.glossaries = glossaries != null ? glossaries.toArray(new String[0]) : null;
+        return this;
+    }
+
+    public DocumentTranslateOptions setGlossaries(String... glossaries) {
+        this.glossaries = glossaries;
+        return this;
+    }
+
     public Boolean getNoTrace() {
         return noTrace;
     }
@@ -45,6 +60,7 @@ public class DocumentTranslateOptions {
     public HttpParams<Object> toParams() {
         HttpParams<Object> params = new HttpParams<>();
         params.set("adapt_to", adaptTo);
+        params.set("glossaries", glossaries);
         params.set("output_format", outputFormat);
 
         return params;
