@@ -1,5 +1,9 @@
 package com.translated.lara.translator;
 
+import com.google.gson.*;
+import com.google.gson.annotations.JsonAdapter;
+import com.google.gson.reflect.TypeToken;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -93,37 +97,166 @@ public class TextResult {
             if (translationBlocks != null) return translationBlocks.toString();
             return null;
         }
+    } 
+
+    @JsonAdapter(AdaptedToMatchesValueDeserializer.class)
+    public static class AdaptedToMatchesValue {
+        private final List<NGMemoryMatch> matches;
+        private final List<List<NGMemoryMatch>> matchesList;
+
+        public AdaptedToMatchesValue(List<NGMemoryMatch> matches) {
+            this.matches = matches;
+            this.matchesList = null;
+        }
+
+        public AdaptedToMatchesValue(List<List<NGMemoryMatch>> matchesList, boolean isList) {
+            this.matches = null;
+            this.matchesList = matchesList;
+        }
+
+        public List<NGMemoryMatch> getMatches() {
+            return matches;
+        }
+
+        public List<List<NGMemoryMatch>> getMatchesList() {
+            return matchesList;
+        }
+
+        @Override
+        public String toString() {
+            if (matches != null) {
+                return matches.toString();
+            } else if (matchesList != null) {
+                return matchesList.toString();
+            }
+            return null;
+        }
+    }
+    public static class AdaptedToMatchesValueDeserializer implements JsonDeserializer<AdaptedToMatchesValue> {
+        @Override
+        public AdaptedToMatchesValue deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+            if (!json.isJsonArray()) {
+                throw new JsonParseException("Expected JSON array for adapted_to_matches");
+            }
+
+            JsonArray array = json.getAsJsonArray();
+            if (array.size() == 0) {
+                return new AdaptedToMatchesValue((List<NGMemoryMatch>) null);
+            }
+
+            JsonElement firstElement = array.get(0);
+            if (firstElement.isJsonArray()) {
+                Type listOfListType = new TypeToken<List<List<NGMemoryMatch>>>(){}.getType();
+                List<List<NGMemoryMatch>> matchesList = context.deserialize(json, listOfListType);
+                return new AdaptedToMatchesValue(matchesList, true);
+            } else {
+                Type listType = new TypeToken<List<NGMemoryMatch>>(){}.getType();
+                List<NGMemoryMatch> matches = context.deserialize(json, listType);
+                return new AdaptedToMatchesValue(matches);
+            }
+        }
+    }
+
+    @JsonAdapter(GlossariesValueMatchesDeserializer.class)
+    public static class GlossariesMatchesValue {
+        private final List<NGGlossaryMatch> matches;
+        private final List<List<NGGlossaryMatch>> matchesList;
+
+        public GlossariesMatchesValue(List<NGGlossaryMatch> matches) {
+            this.matches = matches;
+            this.matchesList = null;
+        }
+
+        public GlossariesMatchesValue(List<List<NGGlossaryMatch>> matchesList, boolean isList) {
+            this.matches = null;
+            this.matchesList = matchesList;
+        }
+
+        public List<NGGlossaryMatch> getMatches() {
+            return matches;
+        }
+
+        public List<List<NGGlossaryMatch>> getMatchesList() {
+            return matchesList;
+        }
+
+        @Override
+        public String toString() {
+            if (matches != null) {
+                return matches.toString();
+            } else if (matchesList != null) {
+                return matchesList.toString();
+            }
+            return null;
+        }
+    }
+    public static class GlossariesValueMatchesDeserializer implements JsonDeserializer<GlossariesMatchesValue> {
+        @Override
+        public GlossariesMatchesValue deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+            if (!json.isJsonArray()) {
+                throw new JsonParseException("Expected JSON array for glossaries_matches");
+            }
+
+            JsonArray array = json.getAsJsonArray();
+            if (array.size() == 0) {
+                return new GlossariesMatchesValue((List<NGGlossaryMatch>) null);
+            }
+
+            JsonElement firstElement = array.get(0);
+            if (firstElement.isJsonArray()) {
+                Type listOfListType = new TypeToken<List<List<NGGlossaryMatch>>>(){}.getType();
+                List<List<NGGlossaryMatch>> matchesList = context.deserialize(json, listOfListType);
+                return new GlossariesMatchesValue(matchesList, true);
+            } else {
+                Type listType = new TypeToken<List<NGGlossaryMatch>>(){}.getType();
+                List<NGGlossaryMatch> matches = context.deserialize(json, listType);
+                return new GlossariesMatchesValue(matches);
+            }
+        }
     }
 
     private final String contentType;
     private final String sourceLanguage;
     private final List<String> adaptedTo;
+    private final List<String> glossaries;
 
     private final Value translation;
+    private final AdaptedToMatchesValue adaptedToMatches;
+    private final GlossariesMatchesValue glossariesMatches;
 
-    public TextResult(String contentType, String sourceLanguage, String translation, String[] adaptedTo) {
+    public TextResult(String contentType, String sourceLanguage, String translation, String[] adaptedTo, String[] glossaries) {
         this.contentType = contentType;
         this.sourceLanguage = sourceLanguage;
         this.adaptedTo = adaptedTo == null ? null : Collections.unmodifiableList(Arrays.asList(adaptedTo));
+        this.glossaries = glossaries == null ? null : Collections.unmodifiableList(Arrays.asList(glossaries));
 
         this.translation = new Value(translation);
+        this.adaptedToMatches = null;
+        this.glossariesMatches = null;
     }
 
-    public TextResult(String contentType, String sourceLanguage, String[] translation, String[] adaptedTo) {
+    public TextResult(String contentType, String sourceLanguage, String[] translation, String[] adaptedTo, String[] glossaries) {
         this.contentType = contentType;
         this.sourceLanguage = sourceLanguage;
         this.adaptedTo = adaptedTo == null ? null : Collections.unmodifiableList(Arrays.asList(adaptedTo));
+        this.glossaries = glossaries == null ? null : Collections.unmodifiableList(Arrays.asList(glossaries));
 
         this.translation = new Value(translation);
+        this.adaptedToMatches = null;
+        this.glossariesMatches = null;
     }
 
-    public TextResult(String contentType, String sourceLanguage, TextBlock[] translation, String[] adaptedTo) {
+    public TextResult(String contentType, String sourceLanguage, TextBlock[] translation, String[] adaptedTo, String[] glossaries) {
         this.contentType = contentType;
         this.sourceLanguage = sourceLanguage;
         this.adaptedTo = adaptedTo == null ? null : Collections.unmodifiableList(Arrays.asList(adaptedTo));
+        this.glossaries = glossaries == null ? null : Collections.unmodifiableList(Arrays.asList(glossaries));
 
         this.translation = new Value(translation);
+        this.adaptedToMatches = null;
+        this.glossariesMatches = null;
     }
+ 
 
     public String getContentType() {
         return contentType;
@@ -137,6 +270,10 @@ public class TextResult {
         return adaptedTo;
     }
 
+	public List<String> getGlossaries() {
+		return glossaries;
+	}
+	
     public String getTranslation() {
         return translation.getTranslation();
     }
@@ -149,9 +286,24 @@ public class TextResult {
         return translation.getTranslationBlocks();
     }
 
+    public List<NGMemoryMatch> getAdaptedToMatches() {
+        return adaptedToMatches != null ? adaptedToMatches.getMatches() : null;
+    }
+
+    public List<List<NGMemoryMatch>> getAdaptedToMatchesList() {
+        return adaptedToMatches != null ? adaptedToMatches.getMatchesList() : null;
+    }
+
+    public List<NGGlossaryMatch> getGlossariesMatches() {
+        return glossariesMatches != null ? glossariesMatches.getMatches() : null;
+    }
+
+    public List<List<NGGlossaryMatch>> getGlossariesMatchesList() {
+        return glossariesMatches != null ? glossariesMatches.getMatchesList() : null;
+    }
+
     @Override
     public String toString() {
         return this.translation.toString();
     }
-
 }
