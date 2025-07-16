@@ -76,8 +76,18 @@ public class Translator {
         HttpParams<Object> params = options == null ? new HttpParams<>() : options.toParams();
 
         Map<String, String> headers = new HashMap<>();
-        if (options != null && Boolean.TRUE.equals(options.getNoTrace())) {
-            headers.put("X-No-Trace", "true");
+        if (options != null) {
+            if (options.getHeaders() != null) {
+                options.getHeaders().forEach((name, value) -> {
+                    if (value != null) {
+                        headers.put(name, value.toString());
+                    }
+                });
+            }
+
+            if (Boolean.TRUE.equals(options.getNoTrace())) {
+                headers.put("X-No-Trace", "true");
+            }
         }
 
         return client.post("/translate", params

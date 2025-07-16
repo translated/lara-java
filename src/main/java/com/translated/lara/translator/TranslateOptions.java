@@ -2,7 +2,9 @@ package com.translated.lara.translator;
 
 import com.translated.lara.net.HttpParams;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class TranslateOptions {
 
@@ -26,6 +28,7 @@ public class TranslateOptions {
     private Integer cacheTTL = null;
     private Boolean noTrace = null;
     private Boolean verbose = null;
+    private Map<String, String> headers = null;
 
     public String getSourceHint() {
         return sourceHint;
@@ -147,6 +150,15 @@ public class TranslateOptions {
 
     public TranslateOptions setVerbose(Boolean verbose) {
         this.verbose = verbose;
+        return this;
+    }
+
+    public Map<String, String> getHeaders() {
+        return headers;
+    }
+
+    public TranslateOptions setHeaders(Map<String, String> headers) {
+        this.headers = headers;
         return this;
     }
 
