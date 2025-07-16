@@ -9,6 +9,7 @@ public class DocumentUploadOptions {
     private String[] adaptTo = null;
     private String[] glossaries = null;
     private Boolean noTrace = null;
+    private TranslationStyle style = null;
 
     public String[] getAdaptTo() {
         return adaptTo;
@@ -47,10 +48,20 @@ public class DocumentUploadOptions {
         return this;
     }
 
+    public TranslationStyle getStyle() {
+        return style;
+    }
+
+    public DocumentUploadOptions setStyle(TranslationStyle style) {
+        this.style = style;
+        return this;
+    }
+
     public HttpParams<Object> toParams() {
         HttpParams<Object> params = new HttpParams<>();
         params.set("adapt_to", adaptTo);
         params.set("glossaries", glossaries);
+        params.set("style", TranslationStyle.toString(style));
 
         return params;
     }

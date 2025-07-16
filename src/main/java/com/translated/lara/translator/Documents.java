@@ -119,6 +119,7 @@ public class Documents {
         if (options != null && options.getAdaptTo() != null) uploadOptions.setAdaptTo(options.getAdaptTo());
         if (options != null && options.getGlossaries() != null) uploadOptions.setGlossaries(options.getGlossaries());
         if (options != null && options.getNoTrace()) uploadOptions.setNoTrace(true);
+        if (options != null && options.getStyle() != null) uploadOptions.setStyle(options.getStyle());
 
         Document document = upload(input, source, target, uploadOptions);
         document = pollDocumentUntilCompleted(document);

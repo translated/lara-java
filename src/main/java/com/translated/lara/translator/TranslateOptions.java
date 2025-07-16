@@ -28,6 +28,7 @@ public class TranslateOptions {
     private Integer cacheTTL = null;
     private Boolean noTrace = null;
     private Boolean verbose = null;
+    private TranslationStyle style = null;
     private Map<String, String> headers = null;
 
     public String getSourceHint() {
@@ -162,6 +163,15 @@ public class TranslateOptions {
         return this;
     }
 
+    public TranslationStyle getStyle() {
+        return style;
+    }
+
+    public TranslateOptions setStyle(TranslationStyle style) {
+        this.style = style;
+        return this;
+    }
+
     public HttpParams<Object> toParams() {
         HttpParams<Object> params = new HttpParams<>();
         params.set("source_hint", sourceHint);
@@ -175,6 +185,7 @@ public class TranslateOptions {
         params.set("use_cache", toString(useCache));
         params.set("cache_ttl", cacheTTL);
         params.set("verbose", verbose);
+        params.set("style", TranslationStyle.toString(style));
 
         return params;
     }

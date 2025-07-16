@@ -10,6 +10,7 @@ public class DocumentTranslateOptions {
     private String[] glossaries = null;
     private String outputFormat = null;
     private Boolean noTrace = null;
+    private TranslationStyle style = null;
 
     public String[] getAdaptTo() {
         return adaptTo;
@@ -57,11 +58,21 @@ public class DocumentTranslateOptions {
         return this;
     }
 
+    public TranslationStyle getStyle() {
+        return style;
+    }
+
+    public DocumentTranslateOptions setStyle(TranslationStyle style) {
+        this.style = style;
+        return this;
+    }
+
     public HttpParams<Object> toParams() {
         HttpParams<Object> params = new HttpParams<>();
         params.set("adapt_to", adaptTo);
         params.set("glossaries", glossaries);
         params.set("output_format", outputFormat);
+        params.set("style", TranslationStyle.toString(style));
 
         return params;
     }

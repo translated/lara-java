@@ -4,6 +4,7 @@ import java.util.List;
 
 public class DocumentOptions {
     private String[] adaptTo = null;
+    private TranslationStyle style = null;
 
     public String[] getAdaptTo() {
         return adaptTo;
@@ -16,6 +17,15 @@ public class DocumentOptions {
 
     public DocumentOptions setAdaptTo(String... adaptTo) {
         this.adaptTo = adaptTo;
+        return this;
+    }
+
+    public TranslationStyle getStyle() {
+        return style;
+    }
+
+    public DocumentOptions setStyle(TranslationStyle style) {
+        this.style = style;
         return this;
     }
 }
