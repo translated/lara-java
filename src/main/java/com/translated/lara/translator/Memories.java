@@ -110,8 +110,12 @@ public class Memories {
     }
 
     public MemoryImport addTranslation(String id, String source, String target, String sentence, String translation, String tuid, String sentenceBefore, String sentenceAfter) throws LaraException {
+        return addTranslation(id, source, target, sentence, translation, tuid, sentenceBefore, sentenceAfter, null);
+    }
+
+    public MemoryImport addTranslation(String id, String source, String target, String sentence, String translation, String tuid, String sentenceBefore, String sentenceAfter, Map<String, String> headers) throws LaraException {
         Map<String, Object> params = translationParams(source, target, sentence, translation, tuid, sentenceBefore, sentenceAfter).build();
-        return client.put("/memories/" + id + "/content", params).as(MemoryImport.class);
+        return client.put("/memories/" + id + "/content", params, null, headers).as(MemoryImport.class);
     }
 
     public MemoryImport addTranslation(List<String> ids, String source, String target, String sentence, String translation) throws LaraException {
@@ -127,8 +131,12 @@ public class Memories {
     }
 
     public MemoryImport addTranslation(List<String> ids, String source, String target, String sentence, String translation, String tuid, String sentenceBefore, String sentenceAfter) throws LaraException {
+        return addTranslation(ids, source, target, sentence, translation, tuid, sentenceBefore, sentenceAfter, null);
+    }
+
+    public MemoryImport addTranslation(List<String> ids, String source, String target, String sentence, String translation, String tuid, String sentenceBefore, String sentenceAfter, Map<String, String> headers) throws LaraException {
         Map<String, Object> params = translationParams(source, target, sentence, translation, tuid, sentenceBefore, sentenceAfter).set("ids", ids).build();
-        return client.put("/memories/content", params).as(MemoryImport.class);
+        return client.put("/memories/content", params, null, headers).as(MemoryImport.class);
     }
 
     public MemoryImport deleteTranslation(String id, String source, String target, String sentence, String translation) throws LaraException {
