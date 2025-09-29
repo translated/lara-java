@@ -10,6 +10,8 @@ public class DocumentUploadOptions {
     private String[] glossaries = null;
     private Boolean noTrace = null;
     private TranslationStyle style = null;
+    private String password = null;
+    private DocumentExtractionParams extractionParams = null;
 
     public String[] getAdaptTo() {
         return adaptTo;
@@ -57,11 +59,31 @@ public class DocumentUploadOptions {
         return this;
     }
 
+    public String getPassword() {
+        return password;
+    }
+
+    public DocumentUploadOptions setPassword(String password) {
+        this.password = password;
+        return this;
+    }
+
+    public DocumentExtractionParams getExtractionParams() {
+        return extractionParams;
+    }
+
+    public DocumentUploadOptions setExtractionParams(DocumentExtractionParams extractionParams) {
+        this.extractionParams = extractionParams;
+        return this;
+    }
+
     public HttpParams<Object> toParams() {
         HttpParams<Object> params = new HttpParams<>();
         params.set("adapt_to", adaptTo);
         params.set("glossaries", glossaries);
         params.set("style", TranslationStyle.toString(style));
+        params.set("password", password);
+        params.set("extraction_params", extractionParams != null ? extractionParams.toParams() : null);
 
         return params;
     }

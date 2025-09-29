@@ -9,7 +9,6 @@ import com.translated.lara.net.LaraClient;
 import com.translated.lara.net.S3Client;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
@@ -120,6 +119,8 @@ public class Documents {
         if (options != null && options.getGlossaries() != null) uploadOptions.setGlossaries(options.getGlossaries());
         if (options != null && options.getNoTrace()) uploadOptions.setNoTrace(true);
         if (options != null && options.getStyle() != null) uploadOptions.setStyle(options.getStyle());
+        if (options != null && options.getPassword() != null) uploadOptions.setPassword(options.getPassword());
+        if (options != null && options.getExtractionParams() != null) uploadOptions.setExtractionParams(options.getExtractionParams());
 
         Document document = upload(input, source, target, uploadOptions);
         document = pollDocumentUntilCompleted(document);

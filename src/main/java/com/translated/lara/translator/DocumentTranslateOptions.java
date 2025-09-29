@@ -11,6 +11,8 @@ public class DocumentTranslateOptions {
     private String outputFormat = null;
     private Boolean noTrace = null;
     private TranslationStyle style = null;
+    private String password = null;
+    private DocumentExtractionParams extractionParams = null;
 
     public String[] getAdaptTo() {
         return adaptTo;
@@ -67,12 +69,31 @@ public class DocumentTranslateOptions {
         return this;
     }
 
+    public String getPassword() {
+        return password;
+    }
+
+    public DocumentTranslateOptions setPassword(String password) {
+        this.password = password;
+        return this;
+    }
+
+    public DocumentExtractionParams getExtractionParams() {
+        return extractionParams;
+    }
+
+    public DocumentTranslateOptions setExtractionParams(DocumentExtractionParams extractionParams) {
+        this.extractionParams = extractionParams;
+        return this;
+    }
+
     public HttpParams<Object> toParams() {
         HttpParams<Object> params = new HttpParams<>();
         params.set("adapt_to", adaptTo);
         params.set("glossaries", glossaries);
         params.set("output_format", outputFormat);
         params.set("style", TranslationStyle.toString(style));
+        params.set("password", password);
 
         return params;
     }
