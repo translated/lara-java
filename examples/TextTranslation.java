@@ -129,5 +129,27 @@ public class TextTranslation {
             System.out.println("Error getting languages: " + e.getMessage());
             return;
         }
+
+        // Example 8: Detect language of a given text
+        System.out.println("=== Language Detection ===");
+        try {
+            DetectResult detectResult = lara.detect("Hola, ¿cómo estás?");
+            System.out.println("Text: Hola, ¿cómo estás?");
+            System.out.println("Detected Language: " + detectResult.getLanguage());
+        } catch (LaraException e) {
+            System.out.println("Error detecting language: " + e.getMessage());
+            return;
+        }
+
+        // Example 9: Detect languages with hint and passlist
+        System.out.println("=== Language Detection with Hint and Passlist ===");
+        try {
+            DetectResult detectResult = lara.detect("Hola, ¿cómo estás?", "es", {"es", "pt", "it"});
+            System.out.println("Text: Hola, ¿cómo estás?");
+            System.out.println("Detected Language: " + detectResult.getLanguage());
+        } catch (LaraException e) {
+            System.out.println("Error detecting language with hint/passlist: " + e.getMessage());
+            return;
+        }
     }
 } 

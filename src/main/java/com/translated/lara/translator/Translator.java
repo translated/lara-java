@@ -6,9 +6,7 @@ import com.translated.lara.net.ClientOptions;
 import com.translated.lara.net.HttpParams;
 import com.translated.lara.net.LaraClient;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Translator {
 
@@ -30,6 +28,58 @@ public class Translator {
 
     public List<String> getLanguages() throws LaraException {
         return client.get("/languages").asList(String.class);
+    }
+
+    public DetectResult detect(String text) throws LaraException {
+        return detectAny(text, null, null);
+    }
+    public DetectResult detect(String text, String hint) throws LaraException {
+        return detectAny(text, hint, null);
+    }
+    public DetectResult detect(String text, String hint, List<String> passlist) throws LaraException {
+        return detectAny(text, hint, passlist);
+    }
+    public DetectResult detect(String text, String hint, String[] passlist) throws LaraException {
+        return detectAny(text, hint, Arrays.asList(passlist));
+    }
+
+    public DetectResult detect(String[] text) throws LaraException {
+        return detectAny(text, null, null);
+    }
+    public DetectResult detect(String[] text, String hint) throws LaraException {
+        return detectAny(text, hint, null);
+    }
+    public DetectResult detect(String[] text, String hint, List<String> passlist) throws LaraException {
+        return detectAny(text, hint, passlist);
+    }
+    public DetectResult detect(String[] text, String hint, String[] passlist) throws LaraException {
+        return detectAny(text, hint, Arrays.asList(passlist));
+    }
+
+    public DetectResult detect(List<String> text) throws LaraException {
+        return detectAny(text, null, null);
+    }
+    public DetectResult detect(List<String> text, String hint) throws LaraException {
+        return detectAny(text, hint, null);
+    }
+    public DetectResult detect(List<String> text, String hint, List<String> passlist) throws LaraException {
+        return detectAny(text, hint, passlist);
+    }
+    public DetectResult detect(List<String> text, String hint, String[] passlist) throws LaraException {
+        return detectAny(text, hint, Arrays.asList(passlist));
+    }
+
+    public DetectResult detectAny(Object text, String hint, Collection<String> passlist) throws LaraException {
+        HttpParams<Object> params = new HttpParams<>();
+        params.set("q", text);
+        if (hint != null) {
+            params.set("hint", hint);
+        }
+        if (passlist != null && !passlist.isEmpty()) {
+            params.set("passlist", passlist);
+        }
+
+        return client.post("/detect", params.build()).as(DetectResult.class);
     }
 
     public TextResult translate(String text, String source, String target) throws LaraException {
