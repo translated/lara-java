@@ -6,12 +6,14 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.translated.lara.errors.LaraApiConnectionException;
 import com.translated.lara.errors.LaraApiException;
+import com.translated.lara.errors.LaraApiConnectionTimeoutException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.HttpURLConnection;
+import java.net.SocketTimeoutException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,6 +34,8 @@ public class ClientResponse {
         int httpStatus;
         try {
             httpStatus = connection.getResponseCode();
+        } catch (SocketTimeoutException e) {
+            throw new LaraApiConnectionTimeoutException("Request timed out", e);
         } catch (IOException e) {
             throw new LaraApiConnectionException("Failed to get response code", e);
         }
