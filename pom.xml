@@ -4,7 +4,7 @@
 
     <groupId>com.translated.lara</groupId>
     <artifactId>lara-sdk</artifactId>
-    <version>1.4.3</version>
+    <version>1.5.0</version>
     <packaging>jar</packaging>
 
     <name>Lara SDK</name>
