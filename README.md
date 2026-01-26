@@ -13,7 +13,7 @@ All major translation features are accessible, making it easy to integrate and c
 - **Translation Memory**: Store and reuse translations for consistency
 - **Glossaries**: Enforce terminology standards across translations
 - **Language Detection**: Automatic source language identification
-- **Advanced Options**: Translation instructions and more
+- **Advanced Options**: Translation instructions, reasoning, and more
 
 ## 📚 Documentation
 

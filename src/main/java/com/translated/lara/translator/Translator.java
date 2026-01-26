@@ -1,12 +1,15 @@
 package com.translated.lara.translator;
 
 import com.translated.lara.Credentials;
+import com.translated.lara.errors.LaraApiException;
 import com.translated.lara.errors.LaraException;
 import com.translated.lara.net.ClientOptions;
 import com.translated.lara.net.HttpParams;
 import com.translated.lara.net.LaraClient;
 
 import java.util.*;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 public class Translator {
 
@@ -89,6 +92,9 @@ public class Translator {
     public TextResult translate(String text, String source, String target, TranslateOptions options) throws LaraException {
         return translateAny(text, source, target, options);
     }
+    public TextResult translate(String text, String source, String target, TranslateOptions options, Consumer<TextResult> callback) throws LaraException {
+        return translateAny(text, source, target, options, callback);
+    }
 
     public TextResult translate(List<String> text, String source, String target) throws LaraException {
         return translateAny(text, source, target, null);
@@ -96,6 +102,9 @@ public class Translator {
 
     public TextResult translate(List<String> text, String source, String target, TranslateOptions options) throws LaraException {
         return translateAny(text, source, target, options);
+    }
+    public TextResult translate(List<String> text, String source, String target, TranslateOptions options, Consumer<TextResult> callback) throws LaraException {
+        return translateAny(text, source, target, options, callback);
     }
 
     public TextResult translate(String[] text, String source, String target) throws LaraException {
@@ -105,6 +114,9 @@ public class Translator {
     public TextResult translate(String[] text, String source, String target, TranslateOptions options) throws LaraException {
         return translateAny(text, source, target, options);
     }
+    public TextResult translate(String[] text, String source, String target, TranslateOptions options, Consumer<TextResult> callback) throws LaraException {
+        return translateAny(text, source, target, options, callback);
+    }
 
     public TextResult translateBlocks(List<TextBlock> text, String source, String target) throws LaraException {
         return translateAny(text, source, target, null);
@@ -112,6 +124,9 @@ public class Translator {
 
     public TextResult translateBlocks(List<TextBlock> text, String source, String target, TranslateOptions options) throws LaraException {
         return translateAny(text, source, target, options);
+    }
+    public TextResult translateBlocks(List<TextBlock> text, String source, String target, TranslateOptions options, Consumer<TextResult> callback) throws LaraException {
+        return translateAny(text, source, target, options, callback);
     }
 
     public TextResult translateBlocks(TextBlock[] text, String source, String target) throws LaraException {
@@ -121,8 +136,15 @@ public class Translator {
     public TextResult translateBlocks(TextBlock[] text, String source, String target, TranslateOptions options) throws LaraException {
         return translateAny(text, source, target, options);
     }
+    public TextResult translateBlocks(TextBlock[] text, String source, String target, TranslateOptions options, Consumer<TextResult> callback) throws LaraException {
+        return translateAny(text, source, target, options, callback);
+    }
 
     protected TextResult translateAny(Object text, String source, String target, TranslateOptions options) throws LaraException {
+        return translateAny(text, source, target, options, null);
+    }
+
+    protected TextResult translateAny(Object text, String source, String target, TranslateOptions options, Consumer<TextResult> callback) throws LaraException {
         HttpParams<Object> params = options == null ? new HttpParams<>() : options.toParams();
 
         Map<String, String> headers = new HashMap<>();
@@ -140,14 +162,38 @@ public class Translator {
             }
         }
 
-        return client.post("/translate", params
+        try (Stream<TextResult> responseStream = client.postAndGetStream("/translate", params
                 .set("source", source)
                 .set("target", target)
                 .set("q", text)
                 .build(),
-                null,
-                headers
-        ).as(TextResult.class);
+                headers)) {
+
+            TextResult lastResult = null;
+            Iterator<TextResult> iterator = responseStream.iterator();
+            while (true) {
+                try {
+                    if (!iterator.hasNext()) {
+                        break;
+                    }
+                    lastResult = iterator.next();
+                    if (callback != null) {
+                        callback.accept(lastResult);
+                    }
+                } catch (RuntimeException e) {
+                    if (e.getCause() instanceof LaraException) {
+                        throw (LaraException) e.getCause();
+                    }
+                    throw e;
+                }
+            }
+
+            if (lastResult == null) {
+                throw new LaraApiException(500, "StreamingError", "No translation result received");
+            }
+
+            return lastResult;
+        }
     }
 
 }

@@ -144,11 +144,32 @@ public class TextTranslation {
         // Example 9: Detect languages with hint and passlist
         System.out.println("=== Language Detection with Hint and Passlist ===");
         try {
-            DetectResult detectResult = lara.detect("Hola, ¿cómo estás?", "es", {"es", "pt", "it"});
+            DetectResult detectResult = lara.detect("Hola, ¿cómo estás?", "es", new String[]{"es", "pt", "it"});
             System.out.println("Text: Hola, ¿cómo estás?");
             System.out.println("Detected Language: " + detectResult.getLanguage());
         } catch (LaraException e) {
             System.out.println("Error detecting language with hint/passlist: " + e.getMessage());
+            return;
+        }
+
+        // Example 10: Translation with reasoning
+        System.out.println("=== Translation with Reasoning ===");
+        try {
+            TranslateOptions reasoningOptions = new TranslateOptions()
+                    .setReasoning(true);
+
+            System.out.println("Original: Wonderful cavernous interior in a central but quiet and private area!");
+            System.out.println("Streaming partial results:");
+
+            Consumer<TextResult> streamingCallback = partialResult -> {
+                System.out.println("Partial result: " + partialResult.getTranslation());
+            };
+
+            TextResult finalResult = lara.translate("Wonderful cavernous interior in a central but quiet and private area!", "en-US", "it-IT", reasoningOptions, streamingCallback);
+
+            System.out.println("Final result: " + finalResult.getTranslation() + "\n");
+        } catch (LaraException e) {
+            System.out.println("Error with reasoning translation: " + e.getMessage() + "\n");
             return;
         }
     }
