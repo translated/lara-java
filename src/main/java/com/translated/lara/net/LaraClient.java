@@ -206,10 +206,6 @@ public class LaraClient {
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
 
             return reader.lines()
-                    .map(line -> {
-                        System.out.println("STREAM LINE: " + line);
-                        return line;
-                    })
                     .filter(line -> !line.trim().isEmpty())
                     .map(line -> parseStreamLine(contentType, responseCode, line))
                     .onClose(() -> {
