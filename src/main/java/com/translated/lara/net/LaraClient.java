@@ -1,15 +1,9 @@
 package com.translated.lara.net;
 
-import com.google.gson.FieldNamingPolicy;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 import com.translated.lara.Credentials;
 import com.translated.lara.Version;
 import com.translated.lara.errors.LaraApiConnectionException;
-import com.translated.lara.errors.LaraApiException;
 import com.translated.lara.errors.LaraException;
 import com.translated.lara.net.json.DocumentStatusTypeAdapter;
 import com.translated.lara.net.json.TextResultValueTypeAdapter;
@@ -18,12 +12,7 @@ import com.translated.lara.translator.TextResult;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -133,17 +122,19 @@ public class LaraClient {
         return request("PUT", path, params, files, headers);
     }
 
-    public Stream<TextResult> postAndGetStream(String path, Map<String, Object> params) throws LaraException {
+    public Stream<ClientResponse> postAndGetStream(String path, Map<String, Object> params) throws LaraException {
         return postAndGetStream(path, params, null, null);
     }
-    public Stream<TextResult> postAndGetStream(String path, Map<String, Object> params, Map<String, String> headers) throws LaraException {
+
+    public Stream<ClientResponse> postAndGetStream(String path, Map<String, Object> params, Map<String, String> headers) throws LaraException {
         return postAndGetStream(path, params, null, headers);
     }
-    public Stream<TextResult> postAndGetStream(String path, Map<String, Object> params, Map<String, File> files, Map<String, String> headers) throws LaraException {
-        return requestStream("POST", path, params, files, headers).map(this::parseTextResult);
+
+    public Stream<ClientResponse> postAndGetStream(String path, Map<String, Object> params, Map<String, File> files, Map<String, String> headers) throws LaraException {
+        return requestStream("POST", path, params, files, headers);
     }
 
-    private Stream<JsonElement> requestStream(String method, String path, Map<String, Object> params, Map<String, File> files, Map<String, String> headers) throws LaraException {
+    private Stream<ClientResponse> requestStream(String method, String path, Map<String, Object> params, Map<String, File> files, Map<String, String> headers) throws LaraException {
         path = normalizePath(path);
         params = prune(params);
         files = prune(files);
@@ -210,21 +201,22 @@ public class LaraClient {
                 throw new LaraApiConnectionException("HTTP error code: " + responseCode);
             }
 
+            String contentType = connection.getContentType();
             InputStream inputStream = connection.getInputStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
 
             return reader.lines()
-                .filter(line -> !line.trim().isEmpty())
-                .map(line -> parseStreamLine(line, responseCode))
-                .onClose(() -> {
-                    try {
-                        reader.close();
-                    } catch (IOException e) {
-                        // Ignore close errors
-                    } finally {
-                        connection.disconnect();
-                    }
-                });
+                    .filter(line -> !line.trim().isEmpty())
+                    .map(line -> parseStreamLine(contentType, responseCode, line))
+                    .onClose(() -> {
+                        try {
+                            reader.close();
+                        } catch (IOException e) {
+                            // Ignore close errors
+                        } finally {
+                            connection.disconnect();
+                        }
+                    });
 
         } catch (IOException e) {
             throw new LaraApiConnectionException("Streaming request failed: " + e.getMessage(), e);
@@ -285,7 +277,7 @@ public class LaraClient {
                 }
             }
 
-            return new ClientResponse(gson, connection);
+            return ClientResponse.fromConnection(gson, connection);
         } catch (IOException e) {
             throw new LaraApiConnectionException("Failed to connect to URL: " + baseUrl + path, e);
         }
@@ -358,56 +350,13 @@ public class LaraClient {
         }
     }
 
-    private JsonElement parseStreamLine(String line, int responseCode) {
-        JsonElement jsonElement;
-        try {
-            jsonElement = JsonParser.parseString(line);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to parse streaming response line: " + line, e);
-        }
+    private ClientResponse parseStreamLine(String contentType, int responseCode, String line) {
+        JsonObject root = JsonParser.parseString(line).getAsJsonObject();
 
-        if (!jsonElement.isJsonObject()) {
-            return jsonElement;
-        }
+        int httpStatus = root.has("status") ? root.get("status").getAsInt() : responseCode;
+        JsonElement response = root.has("content") ? root.get("content") : root.get("error");
 
-    JsonObject jsonObject = jsonElement.getAsJsonObject();
-    int status = jsonObject.has("status") ? jsonObject.get("status").getAsInt() : responseCode;
-
-    if (status < 200 || status >= 300) {
-        throw new RuntimeException(buildStreamingApiException(status, jsonObject));
-    }
-
-    JsonElement data = jsonObject.has("data") ? jsonObject.get("data") : jsonElement;
-
-        if (data.isJsonObject()) {
-            JsonObject dataObject = data.getAsJsonObject();
-            if (dataObject.has("content")) {
-                return dataObject.get("content");
-            }
-        }
-
-        return data;
-    }
-
-    private LaraApiException buildStreamingApiException(int status, JsonElement data) {
-        String type = "UnknownError";
-        String message = "An unknown error occurred";
-
-        if (data != null && data.isJsonObject()) {
-            JsonObject dataObject = data.getAsJsonObject();
-            JsonObject errorObject = dataObject.has("error") && dataObject.get("error").isJsonObject()
-                ? dataObject.getAsJsonObject("error")
-                : dataObject;
-
-            if (errorObject.has("type")) {
-                type = errorObject.get("type").getAsString();
-            }
-            if (errorObject.has("message")) {
-                message = errorObject.get("message").getAsString();
-            }
-        }
-
-        return new LaraApiException(status, type, message);
+        return new ClientResponse(gson, httpStatus, contentType, response);
     }
 
     // Helper method to read the error stream

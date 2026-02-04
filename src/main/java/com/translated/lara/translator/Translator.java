@@ -4,6 +4,7 @@ import com.translated.lara.Credentials;
 import com.translated.lara.errors.LaraApiException;
 import com.translated.lara.errors.LaraException;
 import com.translated.lara.net.ClientOptions;
+import com.translated.lara.net.ClientResponse;
 import com.translated.lara.net.HttpParams;
 import com.translated.lara.net.LaraClient;
 
@@ -36,12 +37,15 @@ public class Translator {
     public DetectResult detect(String text) throws LaraException {
         return detectAny(text, null, null);
     }
+
     public DetectResult detect(String text, String hint) throws LaraException {
         return detectAny(text, hint, null);
     }
+
     public DetectResult detect(String text, String hint, List<String> passlist) throws LaraException {
         return detectAny(text, hint, passlist);
     }
+
     public DetectResult detect(String text, String hint, String[] passlist) throws LaraException {
         return detectAny(text, hint, Arrays.asList(passlist));
     }
@@ -49,12 +53,15 @@ public class Translator {
     public DetectResult detect(String[] text) throws LaraException {
         return detectAny(text, null, null);
     }
+
     public DetectResult detect(String[] text, String hint) throws LaraException {
         return detectAny(text, hint, null);
     }
+
     public DetectResult detect(String[] text, String hint, List<String> passlist) throws LaraException {
         return detectAny(text, hint, passlist);
     }
+
     public DetectResult detect(String[] text, String hint, String[] passlist) throws LaraException {
         return detectAny(text, hint, Arrays.asList(passlist));
     }
@@ -62,12 +69,15 @@ public class Translator {
     public DetectResult detect(List<String> text) throws LaraException {
         return detectAny(text, null, null);
     }
+
     public DetectResult detect(List<String> text, String hint) throws LaraException {
         return detectAny(text, hint, null);
     }
+
     public DetectResult detect(List<String> text, String hint, List<String> passlist) throws LaraException {
         return detectAny(text, hint, passlist);
     }
+
     public DetectResult detect(List<String> text, String hint, String[] passlist) throws LaraException {
         return detectAny(text, hint, Arrays.asList(passlist));
     }
@@ -92,6 +102,7 @@ public class Translator {
     public TextResult translate(String text, String source, String target, TranslateOptions options) throws LaraException {
         return translateAny(text, source, target, options);
     }
+
     public TextResult translate(String text, String source, String target, TranslateOptions options, Consumer<TextResult> callback) throws LaraException {
         return translateAny(text, source, target, options, callback);
     }
@@ -103,6 +114,7 @@ public class Translator {
     public TextResult translate(List<String> text, String source, String target, TranslateOptions options) throws LaraException {
         return translateAny(text, source, target, options);
     }
+
     public TextResult translate(List<String> text, String source, String target, TranslateOptions options, Consumer<TextResult> callback) throws LaraException {
         return translateAny(text, source, target, options, callback);
     }
@@ -114,6 +126,7 @@ public class Translator {
     public TextResult translate(String[] text, String source, String target, TranslateOptions options) throws LaraException {
         return translateAny(text, source, target, options);
     }
+
     public TextResult translate(String[] text, String source, String target, TranslateOptions options, Consumer<TextResult> callback) throws LaraException {
         return translateAny(text, source, target, options, callback);
     }
@@ -125,6 +138,7 @@ public class Translator {
     public TextResult translateBlocks(List<TextBlock> text, String source, String target, TranslateOptions options) throws LaraException {
         return translateAny(text, source, target, options);
     }
+
     public TextResult translateBlocks(List<TextBlock> text, String source, String target, TranslateOptions options, Consumer<TextResult> callback) throws LaraException {
         return translateAny(text, source, target, options, callback);
     }
@@ -136,6 +150,7 @@ public class Translator {
     public TextResult translateBlocks(TextBlock[] text, String source, String target, TranslateOptions options) throws LaraException {
         return translateAny(text, source, target, options);
     }
+
     public TextResult translateBlocks(TextBlock[] text, String source, String target, TranslateOptions options, Consumer<TextResult> callback) throws LaraException {
         return translateAny(text, source, target, options, callback);
     }
@@ -162,29 +177,20 @@ public class Translator {
             }
         }
 
-        try (Stream<TextResult> responseStream = client.postAndGetStream("/translate", params
-                .set("source", source)
-                .set("target", target)
-                .set("q", text)
-                .build(),
+        try (Stream<ClientResponse> responseStream = client.postAndGetStream("/translate", params
+                        .set("source", source)
+                        .set("target", target)
+                        .set("q", text)
+                        .build(),
                 headers)) {
 
             TextResult lastResult = null;
-            Iterator<TextResult> iterator = responseStream.iterator();
-            while (true) {
-                try {
-                    if (!iterator.hasNext()) {
-                        break;
-                    }
-                    lastResult = iterator.next();
-                    if (callback != null) {
-                        callback.accept(lastResult);
-                    }
-                } catch (RuntimeException e) {
-                    if (e.getCause() instanceof LaraException) {
-                        throw (LaraException) e.getCause();
-                    }
-                    throw e;
+            Iterator<ClientResponse> iterator = responseStream.iterator();
+            while (iterator.hasNext()) {
+                lastResult = iterator.next().as(TextResult.class);
+
+                if (callback != null) {
+                    callback.accept(lastResult);
                 }
             }
 
