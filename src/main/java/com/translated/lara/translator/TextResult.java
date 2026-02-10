@@ -144,8 +144,15 @@ public class TextResult {
                 return new AdaptedToMatchesValue((List<NGMemoryMatch>) null);
             }
 
-            JsonElement firstElement = array.get(0);
-            if (firstElement.isJsonArray()) {
+            boolean hasNestedArrays = false;
+            for (JsonElement element : array) {
+                if (element != null && element.isJsonArray()) {
+                    hasNestedArrays = true;
+                    break;
+                }
+            }
+
+            if (hasNestedArrays) {
                 Type listOfListType = new TypeToken<List<List<NGMemoryMatch>>>(){}.getType();
                 List<List<NGMemoryMatch>> matchesList = context.deserialize(json, listOfListType);
                 return new AdaptedToMatchesValue(matchesList, true);
@@ -202,8 +209,15 @@ public class TextResult {
                 return new GlossariesMatchesValue((List<NGGlossaryMatch>) null);
             }
 
-            JsonElement firstElement = array.get(0);
-            if (firstElement.isJsonArray()) {
+            boolean hasNestedArrays = false;
+            for (JsonElement element : array) {
+                if (element != null && element.isJsonArray()) {
+                    hasNestedArrays = true;
+                    break;
+                }
+            }
+
+            if (hasNestedArrays) {
                 Type listOfListType = new TypeToken<List<List<NGGlossaryMatch>>>(){}.getType();
                 List<List<NGGlossaryMatch>> matchesList = context.deserialize(json, listOfListType);
                 return new GlossariesMatchesValue(matchesList, true);
