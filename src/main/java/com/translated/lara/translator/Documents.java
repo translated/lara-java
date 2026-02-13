@@ -55,7 +55,7 @@ public class Documents {
                 .set("s3key", s3key);
 
         Map<String, String> headers = new HashMap<>();
-        if (options != null && options.getNoTrace()) {
+        if (options != null && Boolean.TRUE.equals(options.getNoTrace())) {
             headers.put("X-No-Trace", "true");
         }
 
