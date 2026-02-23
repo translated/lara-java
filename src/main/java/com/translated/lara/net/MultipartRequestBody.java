@@ -1,14 +1,14 @@
 package com.translated.lara.net;
 
+import com.google.gson.Gson;
+
 import java.io.*;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 class MultipartRequestBody implements RequestBody {
 
@@ -22,13 +22,23 @@ class MultipartRequestBody implements RequestBody {
         if (params != null && !params.isEmpty()) {
             this.params = new HashMap<>(params.size());
             for (Map.Entry<String, Object> entry : params.entrySet())
-                this.params.put(entry.getKey(), entry.getValue().toString());
+                this.params.put(entry.getKey(), toStringValue(entry.getValue()));
         } else {
             this.params = null;
         }
 
         this.files = files != null && !files.isEmpty() ? files : null;
         this.boundary = "---------------------------LaraClient_" + UUID.randomUUID().toString().replace("-", "");
+    }
+
+    private static final Gson GSON = new Gson();
+
+    private String toStringValue(Object value) {
+        if (value instanceof List<?> || value instanceof String[]) {
+            return GSON.toJson(value);
+        } else {
+            return value.toString();
+        }
     }
 
     @Override

@@ -4,10 +4,11 @@ import com.translated.lara.translator.*;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Complete text translation examples for the Lara Java SDK
- * 
+ *
  * This example demonstrates:
  * - Single string translation
  * - Multiple strings translation
@@ -120,7 +121,28 @@ public class TextTranslation {
             return;
         }
 
-        // Example 7: Get available languages
+        // Example 7: Translation with reasoning
+        System.out.println("=== Translation with Reasoning ===");
+        try {
+            TranslateOptions reasoningOptions = new TranslateOptions()
+                .setReasoning(true);
+
+            System.out.println("Original: Wonderful cavernous interior in a central but quiet and private area!");
+            System.out.println("Streaming partial results:");
+
+            Consumer<TextResult> streamingCallback = partialResult -> {
+                System.out.println("Partial result: " + partialResult.getTranslation());
+            };
+
+            TextResult finalResult = lara.translate("Wonderful cavernous interior in a central but quiet and private area!", "en-US", "it-IT", reasoningOptions, streamingCallback);
+
+            System.out.println("Final result: " + finalResult.getTranslation() + "\n");
+        } catch (LaraException e) {
+            System.out.println("Error with reasoning translation: " + e.getMessage() + "\n");
+            return;
+        }
+
+        // Example 8: Get available languages
         System.out.println("=== Available Languages ===");
         try {
             List<String> languages = lara.getLanguages();
@@ -130,7 +152,7 @@ public class TextTranslation {
             return;
         }
 
-        // Example 8: Detect language of a given text
+        // Example 9: Detect language of a given text
         System.out.println("=== Language Detection ===");
         try {
             DetectResult detectResult = lara.detect("Hola, ¿cómo estás?");
@@ -141,7 +163,7 @@ public class TextTranslation {
             return;
         }
 
-        // Example 9: Detect languages with hint and passlist
+        // Example 10: Detect languages with hint and passlist
         System.out.println("=== Language Detection with Hint and Passlist ===");
         try {
             DetectResult detectResult = lara.detect("Hola, ¿cómo estás?", "es", new String[]{"es", "pt", "it"});

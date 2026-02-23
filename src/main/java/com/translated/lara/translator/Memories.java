@@ -28,7 +28,7 @@ public class Memories {
     }
 
     public List<Memory> list() throws LaraException {
-        return client.get("/memories").asList(Memory.class);
+        return client.get("/v2/memories").asList(Memory.class);
     }
 
     public Memory create(String name) throws LaraException {
@@ -36,7 +36,7 @@ public class Memories {
     }
 
     public Memory create(String name, String externalId) throws LaraException {
-        return client.post("/memories", new HttpParams<>()
+        return client.post("/v2/memories", new HttpParams<>()
                 .set("name", name)
                 .set("external_id", externalId)
                 .build()
@@ -45,7 +45,7 @@ public class Memories {
 
     public Memory get(String id) throws LaraException {
         try {
-            return client.get("/memories/" + id).as(Memory.class);
+            return client.get("/v2/memories/" + id).as(Memory.class);
         } catch (LaraApiException e) {
             if (e.getStatusCode() == 404) {
                 return null;
@@ -56,11 +56,11 @@ public class Memories {
     }
 
     public Memory delete(String id) throws LaraException {
-        return client.delete("/memories/" + id).as(Memory.class);
+        return client.delete("/v2/memories/" + id).as(Memory.class);
     }
 
     public Memory update(String id, String name) throws LaraException {
-        return client.put("/memories/" + id, new HttpParams<>()
+        return client.put("/v2/memories/" + id, new HttpParams<>()
                 .set("name", name)
                 .build()
         ).as(Memory.class);
@@ -76,7 +76,7 @@ public class Memories {
     }
 
     public List<Memory> connect(List<String> ids) throws LaraException {
-        return client.post("/memories/connect", new HttpParams<>()
+        return client.post("/v2/memories/connect", new HttpParams<>()
                 .set("ids", ids)
                 .build()
         ).asList(Memory.class);
@@ -94,7 +94,7 @@ public class Memories {
                 .set("tmx", tmx)
                 .build();
 
-        return client.post("/memories/" + id + "/import", params, files).as(MemoryImport.class);
+        return client.post("/v2/memories/" + id + "/import", params, files, null).as(MemoryImport.class);
     }
 
     public MemoryImport addTranslation(String id, String source, String target, String sentence, String translation) throws LaraException {
@@ -115,7 +115,7 @@ public class Memories {
 
     public MemoryImport addTranslation(String id, String source, String target, String sentence, String translation, String tuid, String sentenceBefore, String sentenceAfter, Map<String, String> headers) throws LaraException {
         Map<String, Object> params = translationParams(source, target, sentence, translation, tuid, sentenceBefore, sentenceAfter).build();
-        return client.put("/memories/" + id + "/content", params, null, headers).as(MemoryImport.class);
+        return client.put("/v2/memories/" + id + "/content", params, null, headers).as(MemoryImport.class);
     }
 
     public MemoryImport addTranslation(List<String> ids, String source, String target, String sentence, String translation) throws LaraException {
@@ -136,7 +136,7 @@ public class Memories {
 
     public MemoryImport addTranslation(List<String> ids, String source, String target, String sentence, String translation, String tuid, String sentenceBefore, String sentenceAfter, Map<String, String> headers) throws LaraException {
         Map<String, Object> params = translationParams(source, target, sentence, translation, tuid, sentenceBefore, sentenceAfter).set("ids", ids).build();
-        return client.put("/memories/content", params, null, headers).as(MemoryImport.class);
+        return client.put("/v2/memories/content", params, null, headers).as(MemoryImport.class);
     }
 
     public MemoryImport deleteTranslation(String id, String source, String target, String sentence, String translation) throws LaraException {
@@ -153,7 +153,7 @@ public class Memories {
 
     public MemoryImport deleteTranslation(String id, String source, String target, String sentence, String translation, String tuid, String sentenceBefore, String sentenceAfter) throws LaraException {
         Map<String, Object> params = translationParams(source, target, sentence, translation, tuid, sentenceBefore, sentenceAfter).build();
-        return client.delete("/memories/" + id + "/content", params).as(MemoryImport.class);
+        return client.delete("/v2/memories/" + id + "/content", params).as(MemoryImport.class);
     }
 
     public MemoryImport deleteTranslation(List<String> ids, String source, String target, String sentence, String translation) throws LaraException {
@@ -170,7 +170,7 @@ public class Memories {
 
     public MemoryImport deleteTranslation(List<String> ids, String source, String target, String sentence, String translation, String tuid, String sentenceBefore, String sentenceAfter) throws LaraException {
         Map<String, Object> params = translationParams(source, target, sentence, translation, tuid, sentenceBefore, sentenceAfter).set("ids", ids).build();
-        return client.delete("/memories/content", params).as(MemoryImport.class);
+        return client.delete("/v2/memories/content", params).as(MemoryImport.class);
     }
 
     private HttpParams<Object> translationParams(String source, String target, String sentence, String translation, String tuid, String sentenceBefore, String sentenceAfter) {
@@ -185,7 +185,7 @@ public class Memories {
     }
 
     public MemoryImport getImportStatus(String id) throws LaraException {
-        return client.get("/memories/imports/" + id).as(MemoryImport.class);
+        return client.get("/v2/memories/imports/" + id).as(MemoryImport.class);
     }
 
     public MemoryImport waitForImport(MemoryImport mImport) throws LaraException, InterruptedException {

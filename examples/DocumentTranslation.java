@@ -104,6 +104,12 @@ public class DocumentTranslation {
             
             // Download translated document
             System.out.println("\nStep 3: Downloading would happen after translation completes...");
+
+            while(status.getStatus() != Document.Status.TRANSLATED) {
+                Thread.sleep(1000); // Wait for 1 second before checking status again
+                status = lara.documents.status(document.getId());
+                System.out.println("Current status: " + status.getStatus());
+            }
             
             InputStream fileStream = lara.documents.download(document.getId());
             

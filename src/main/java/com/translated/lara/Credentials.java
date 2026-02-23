@@ -1,26 +1,32 @@
 package com.translated.lara;
 
-public class Credentials {
+import com.translated.lara.authentication.AccessKey;
 
-    private final String accessKeyId;
-    private final String accessKeySecret;
+/**
+ * @deprecated Use {@link AccessKey} instead.
+ */
+@Deprecated
+public class Credentials extends AccessKey {
 
     public Credentials(String accessKeyId, String accessKeySecret) {
-        this.accessKeyId = accessKeyId;
-        this.accessKeySecret = accessKeySecret;
+        super(accessKeyId, accessKeySecret);
     }
 
+    /**
+     * @deprecated use {@link #getId()} instead
+     * @return String
+     */
+    @Deprecated
     public String getAccessKeyId() {
-        return accessKeyId;
+        return id;
     }
 
+    /**
+     * @deprecated use {@link #getSecret()} instead
+     * @return String
+     */
+    @Deprecated
     public String getAccessKeySecret() {
-        return accessKeySecret;
+        return secret;
     }
-
-    @Override
-    public String toString() {
-        return accessKeyId;
-    }
-
 }

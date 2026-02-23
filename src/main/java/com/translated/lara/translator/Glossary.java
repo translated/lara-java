@@ -6,8 +6,9 @@ import java.util.Objects;
 public class Glossary {
 
     public enum Type {
-        CSV_TABLE_UNI("csv/table-uni");
-        
+        CSV_TABLE_UNI("csv/table-uni"),
+        CSV_TABLE_MULTI("csv/table-multi");
+
         private final String value;
         
         Type(String value) {

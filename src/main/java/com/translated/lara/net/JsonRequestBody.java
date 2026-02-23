@@ -7,6 +7,7 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 import java.util.Map;
 
 class JsonRequestBody implements RequestBody {
@@ -23,11 +24,10 @@ class JsonRequestBody implements RequestBody {
         try {
             md5 = MessageDigest.getInstance("MD5");
         } catch (NoSuchAlgorithmException e) {
-            throw new Error("MD5 algorithm not found", e);
+            throw new RuntimeException("MD5 algorithm not found", e);
         }
-
-        byte[] bytes = md5.digest(body);
-        return HexFormat.format(bytes);
+        byte[] digest = md5.digest(this.body);
+        return Base64.getEncoder().encodeToString(digest);
     }
 
     @Override

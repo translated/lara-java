@@ -25,11 +25,11 @@ public class Glossaries {
     }
 
     public List<Glossary> list() throws LaraException {
-        return client.get("/glossaries").asList(Glossary.class);
+        return client.get("/v2/glossaries").asList(Glossary.class);
     }
 
     public Glossary create(String name) throws LaraException {
-        return client.post("/glossaries", new HttpParams<>()
+        return client.post("/v2/glossaries", new HttpParams<>()
                 .set("name", name)
                 .build()
         ).as(Glossary.class);
@@ -37,7 +37,7 @@ public class Glossaries {
 
     public Glossary get(String id) throws LaraException {
         try {
-            return client.get("/glossaries/" + id).as(Glossary.class);
+            return client.get("/v2/glossaries/" + id).as(Glossary.class);
         } catch (LaraApiException e) {
             if (e.getStatusCode() == 404) {
                 return null;
@@ -48,33 +48,42 @@ public class Glossaries {
     }
 
     public Glossary delete(String id) throws LaraException {
-        return client.delete("/glossaries/" + id).as(Glossary.class);
+        return client.delete("/v2/glossaries/" + id).as(Glossary.class);
     }
 
     public Glossary update(String id, String name) throws LaraException {
-        return client.put("/glossaries/" + id, new HttpParams<>()
+        return client.put("/v2/glossaries/" + id, new HttpParams<>()
                 .set("name", name)
                 .build()
         ).as(Glossary.class);
     }
 
     public GlossaryImport importCsv(String id, File csv) throws LaraException {
-        return importCsv(id, csv, csv.getName().toLowerCase().endsWith(".gz"));
+        return importCsv(id, csv, Glossary.Type.CSV_TABLE_UNI);
     }
 
     public GlossaryImport importCsv(String id, File csv, boolean gzip) throws LaraException {
+        return importCsv(id, csv, Glossary.Type.CSV_TABLE_UNI, gzip);
+    }
+
+    public GlossaryImport importCsv(String id, File csv, Glossary.Type contentType) throws LaraException {
+        return importCsv(id, csv, contentType, csv.getName().toLowerCase().endsWith(".gz"));
+    }
+
+    public GlossaryImport importCsv(String id, File csv, Glossary.Type contentType, boolean gzip) throws LaraException {
         Map<String, Object> params = new HttpParams<>()
                 .set("compression", gzip ? "gzip" : null)
+                .set("content_type", contentType.toString())
                 .build();
         Map<String, File> files = new HttpParams<File>()
                 .set("csv", csv)
                 .build();
 
-        return client.post("/glossaries/" + id + "/import", params, files).as(GlossaryImport.class);
+        return client.post("/v2/glossaries/" + id + "/import", params, files, null).as(GlossaryImport.class);
     }
 
     public GlossaryImport getImportStatus(String id) throws LaraException {
-        return client.get("/glossaries/imports/" + id).as(GlossaryImport.class);
+        return client.get("/v2/glossaries/imports/" + id).as(GlossaryImport.class);
     }
 
     public GlossaryImport waitForImport(GlossaryImport gImport) throws LaraException, InterruptedException {
@@ -105,16 +114,54 @@ public class Glossaries {
         return gImport;
     }
 
+    public String export(String id, Glossary.Type contentType) throws LaraException {
+        return export(id, contentType, null);
+    }
+
     public String export(String id, Glossary.Type contentType, String source) throws LaraException {
         HttpParams<Object> params = new HttpParams<>()
                 .set("content_type", contentType.toString());
         if (source != null) {
             params.set("source", source);
         }
-        return client.get("/glossaries/" + id + "/export", params.build()).toString();
+        return client.get("/v2/glossaries/" + id + "/export?" + params.toQueryString()).toString();
     }
 
     public GlossaryCounts counts(String id) throws LaraException {
-        return client.get("/glossaries/" + id + "/counts").as(GlossaryCounts.class);
+        return client.get("/v2/glossaries/" + id + "/counts").as(GlossaryCounts.class);
+    }
+
+    public GlossaryImport addOrReplaceEntry(String glossaryId, List<GlossaryTerm> terms, String guid) throws LaraException {
+        HttpParams<Object> params = new HttpParams<>()
+                .set("terms", terms);
+        if (guid != null) {
+            params.set("guid", guid);
+        }
+
+        return client.put("/v2/glossaries/" + glossaryId + "/content", params.build()).as(GlossaryImport.class);
+    }
+
+    public GlossaryImport addOrReplaceEntry(String glossaryId, List<GlossaryTerm> terms) throws LaraException {
+        return addOrReplaceEntry(glossaryId, terms, null);
+    }
+
+    public GlossaryImport deleteEntry(String glossaryId, GlossaryTerm term, String guid) throws LaraException {
+        HttpParams<Object> params = new HttpParams<>();
+        if (guid != null) {
+            params.set("guid", guid);
+        }
+        if (term != null) {
+            params.set("term", term);
+        }
+
+        return client.delete("/v2/glossaries/" + glossaryId + "/content", params.build()).as(GlossaryImport.class);
+    }
+
+    public GlossaryImport deleteEntry(String glossaryId, GlossaryTerm term) throws LaraException {
+        return deleteEntry(glossaryId, term, null);
+    }
+
+    public GlossaryImport deleteEntry(String glossaryId, String guid) throws LaraException {
+        return deleteEntry(glossaryId, null, guid);
     }
 }

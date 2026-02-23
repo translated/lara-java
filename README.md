@@ -48,6 +48,7 @@ import com.translated.lara.translator.TextResult;
 import com.translated.lara.errors.LaraException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 public class Example {
     public static void main(String[] args) {
@@ -286,6 +287,17 @@ Glossary glossary = lara.glossaries.create("MyGlossary");
 // Import CSV from file
 File csvFile = new File("/path/to/your/glossary.csv");  // Replace with actual CSV file path
 GlossaryImport glossaryImport = lara.glossaries.importCsv("gls_1A2b3C4d5E6f7G8h9I0jKl", csvFile);
+
+// Add (or replace) individual terms to glossary
+List<Map<String, String>> terms = Arrays.asList(
+    Map.of("language", "fr-FR", "value", "Bonjour"),
+    Map.of("language", "es-ES", "value", "Hola")
+);
+Object addResult = lara.glossaries.addOrReplaceEntry("gls_1A2b3C4d5E6f7G8h9I0jKl", terms, null);
+
+// Remove a specific term from glossary
+Map<String, String> termToRemove = Map.of("language", "fr-FR", "value", "Bonjour");
+Object removeResult = lara.glossaries.deleteEntry("gls_1A2b3C4d5E6f7G8h9I0jKl", termToRemove, null);
 
 // Check import status
 GlossaryImport importStatus = lara.glossaries.getImportStatus("gls_1A2b3C4d5E6f7G8h9I0jKl");

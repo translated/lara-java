@@ -5,6 +5,7 @@ import com.translated.lara.translator.*;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -13,6 +14,7 @@ import java.util.Map;
  * 
  * This example demonstrates:
  * - Create, list, update, delete glossaries
+ * - Individual term management (add/remove terms)
  * - CSV import with status monitoring
  * - Glossary export
  * - Glossary terms count
@@ -52,18 +54,38 @@ public class GlossariesManagement {
             if (retrievedGlossary != null) {
                 System.out.println("📖 Glossary: " + retrievedGlossary.getName() + " (Owner: " + retrievedGlossary.getOwnerId() + ")");
             }
-
-            // Get glossary terms count
-            GlossaryCounts counts = lara.glossaries.counts(glossaryId);
-            for (Map.Entry<String, Integer> entry : counts.getUnidirectional().entrySet()) {
-                System.out.println("   " + entry.getKey() + ": " + entry.getValue() + " entries");
-            }
             
             // Update glossary
             Glossary updatedGlossary = lara.glossaries.update(glossaryId, "UpdatedDemoGlossary");
             System.out.println("📝 Updated name: '" + glossary.getName() + "' -> '" + updatedGlossary.getName() + "'");
 
-            // Example 3: CSV import functionality
+            // Example 3: Term management
+            System.out.println("=== Term Management ===");
+
+            // Add (or replace) individual terms to glossary
+            try {
+                List<Map<String, String>> terms = Arrays.asList(
+                    Map.of("language", "fr-FR", "value", "Bonjour"),
+                    Map.of("language", "es-ES", "value", "Hola")
+                );
+                Object addResult = lara.glossaries.addOrReplaceEntry(glossaryId, terms, null);
+                System.out.println("✅ Terms added successfully to glossary");
+                System.out.println();
+            } catch (LaraException e) {
+                System.out.println("⚠️  Could not add terms: " + e.getMessage() + "\n");
+            }
+
+            // Remove a specific term from glossary
+            try {
+                Map<String, String> termToRemove = Map.of("language", "fr-FR", "value", "Bonjour");
+                Object removeResult = lara.glossaries.deleteEntry(glossaryId, termToRemove, null);
+                System.out.println("✅ Term removed successfully from glossary");
+                System.out.println();
+            } catch (LaraException e) {
+                System.out.println("⚠️  Could not remove term: " + e.getMessage() + "\n");
+            }
+
+            // Example 4: CSV import functionality
             System.out.println("=== CSV Import Functionality ===");
             
             // Replace with your actual CSV file path
@@ -97,12 +119,12 @@ public class GlossariesManagement {
                 System.out.println("CSV file not found: " + csvFilePath);
             }
 
-            // Example 4: Export functionality
+            // Example 5: Export functionality
             System.out.println("=== Export Functionality ===");
             try {
                 // Export as CSV table unidirectional format
                 System.out.println("📤 Exporting as CSV table unidirectional...");
-                String csvUniData = lara.glossaries.export(glossaryId, "csv/table-uni", "en-US");
+                String csvUniData = lara.glossaries.export(glossaryId, Glossary.Type.CSV_TABLE_UNI, "en-US");
                 System.out.println("✅ CSV unidirectional export successful (" + csvUniData.length() + " bytes)");
 
                 // Save sample exports to files - replace with your desired output paths
@@ -114,7 +136,7 @@ public class GlossariesManagement {
                 System.out.println("Error with export: " + e.getMessage() + "\n");
             }
 
-            // Example 5: Glossary Terms Count
+            // Example 6: Glossary Terms Count
             System.out.println("=== Glossary Terms Count ===");
             try {
                 // Get detailed counts

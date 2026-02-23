@@ -1,6 +1,8 @@
 package com.translated.lara.translator;
 
-import com.translated.lara.Credentials;
+import com.translated.lara.Version;
+import com.translated.lara.authentication.AccessKey;
+import com.translated.lara.authentication.AuthToken;
 import com.translated.lara.errors.LaraApiException;
 import com.translated.lara.errors.LaraException;
 import com.translated.lara.net.ClientOptions;
@@ -18,34 +20,50 @@ public class Translator {
     public final Memories memories;
     public final Documents documents;
     public final Glossaries glossaries;
+    public final ImageTranslator images;
+    public final AudioTranslator audio;
 
-    public Translator(Credentials credentials) {
-        this(credentials, new ClientOptions());
+    public Translator(AccessKey accessKey) {
+        this(accessKey, new ClientOptions());
     }
-
-    public Translator(Credentials credentials, ClientOptions options) {
-        this.client = new LaraClient(credentials, options);
+    public Translator(AccessKey accessKey, ClientOptions options) {
+        this.client = new LaraClient(accessKey, options);
         this.memories = new Memories(client);
         this.documents = new Documents(client);
         this.glossaries = new Glossaries(client);
+        this.images = new ImageTranslator(client);
+        this.audio = new AudioTranslator(client);
+    }
+
+    public Translator(AuthToken authToken) {
+        this(authToken, new ClientOptions());
+    }
+    public Translator(AuthToken authToken, ClientOptions options) {
+        this.client = new LaraClient(authToken, options);
+        this.memories = new Memories(client);
+        this.documents = new Documents(client);
+        this.glossaries = new Glossaries(client);
+        this.images = new ImageTranslator(client);
+        this.audio = new AudioTranslator(client);
     }
 
     public List<String> getLanguages() throws LaraException {
-        return client.get("/languages").asList(String.class);
+        return client.get("/v2/languages").asList(String.class);
+    }
+
+    public String version() {
+        return Version.get();
     }
 
     public DetectResult detect(String text) throws LaraException {
         return detectAny(text, null, null);
     }
-
     public DetectResult detect(String text, String hint) throws LaraException {
         return detectAny(text, hint, null);
     }
-
     public DetectResult detect(String text, String hint, List<String> passlist) throws LaraException {
         return detectAny(text, hint, passlist);
     }
-
     public DetectResult detect(String text, String hint, String[] passlist) throws LaraException {
         return detectAny(text, hint, Arrays.asList(passlist));
     }
@@ -53,15 +71,12 @@ public class Translator {
     public DetectResult detect(String[] text) throws LaraException {
         return detectAny(text, null, null);
     }
-
     public DetectResult detect(String[] text, String hint) throws LaraException {
         return detectAny(text, hint, null);
     }
-
     public DetectResult detect(String[] text, String hint, List<String> passlist) throws LaraException {
         return detectAny(text, hint, passlist);
     }
-
     public DetectResult detect(String[] text, String hint, String[] passlist) throws LaraException {
         return detectAny(text, hint, Arrays.asList(passlist));
     }
@@ -69,15 +84,12 @@ public class Translator {
     public DetectResult detect(List<String> text) throws LaraException {
         return detectAny(text, null, null);
     }
-
     public DetectResult detect(List<String> text, String hint) throws LaraException {
         return detectAny(text, hint, null);
     }
-
     public DetectResult detect(List<String> text, String hint, List<String> passlist) throws LaraException {
         return detectAny(text, hint, passlist);
     }
-
     public DetectResult detect(List<String> text, String hint, String[] passlist) throws LaraException {
         return detectAny(text, hint, Arrays.asList(passlist));
     }
@@ -92,7 +104,7 @@ public class Translator {
             params.set("passlist", passlist);
         }
 
-        return client.post("/detect", params.build()).as(DetectResult.class);
+        return client.post("/v2/detect", params.build()).as(DetectResult.class);
     }
 
     public TextResult translate(String text, String source, String target) throws LaraException {
@@ -102,7 +114,6 @@ public class Translator {
     public TextResult translate(String text, String source, String target, TranslateOptions options) throws LaraException {
         return translateAny(text, source, target, options);
     }
-
     public TextResult translate(String text, String source, String target, TranslateOptions options, Consumer<TextResult> callback) throws LaraException {
         return translateAny(text, source, target, options, callback);
     }
@@ -114,7 +125,6 @@ public class Translator {
     public TextResult translate(List<String> text, String source, String target, TranslateOptions options) throws LaraException {
         return translateAny(text, source, target, options);
     }
-
     public TextResult translate(List<String> text, String source, String target, TranslateOptions options, Consumer<TextResult> callback) throws LaraException {
         return translateAny(text, source, target, options, callback);
     }
@@ -126,7 +136,6 @@ public class Translator {
     public TextResult translate(String[] text, String source, String target, TranslateOptions options) throws LaraException {
         return translateAny(text, source, target, options);
     }
-
     public TextResult translate(String[] text, String source, String target, TranslateOptions options, Consumer<TextResult> callback) throws LaraException {
         return translateAny(text, source, target, options, callback);
     }
@@ -138,7 +147,6 @@ public class Translator {
     public TextResult translateBlocks(List<TextBlock> text, String source, String target, TranslateOptions options) throws LaraException {
         return translateAny(text, source, target, options);
     }
-
     public TextResult translateBlocks(List<TextBlock> text, String source, String target, TranslateOptions options, Consumer<TextResult> callback) throws LaraException {
         return translateAny(text, source, target, options, callback);
     }
@@ -150,7 +158,6 @@ public class Translator {
     public TextResult translateBlocks(TextBlock[] text, String source, String target, TranslateOptions options) throws LaraException {
         return translateAny(text, source, target, options);
     }
-
     public TextResult translateBlocks(TextBlock[] text, String source, String target, TranslateOptions options, Consumer<TextResult> callback) throws LaraException {
         return translateAny(text, source, target, options, callback);
     }
@@ -178,10 +185,10 @@ public class Translator {
         }
 
         try (Stream<ClientResponse> responseStream = client.postAndGetStream("/translate", params
-                        .set("source", source)
-                        .set("target", target)
-                        .set("q", text)
-                        .build(),
+                .set("source", source)
+                .set("target", target)
+                .set("q", text)
+                .build(),
                 headers)) {
 
             TextResult lastResult = null;

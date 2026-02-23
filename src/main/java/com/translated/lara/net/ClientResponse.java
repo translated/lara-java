@@ -53,8 +53,14 @@ public class ClientResponse {
         } else {
             JsonElement response;
             try (Reader reader = new InputStreamReader(isSuccessful ? connection.getInputStream() : connection.getErrorStream(), StandardCharsets.UTF_8)) {
-                JsonObject root = JsonParser.parseReader(reader).getAsJsonObject();
-                response = root.get(isSuccessful ? "content" : "error");
+                JsonElement root = JsonParser.parseReader(reader);
+                if (root.isJsonObject()) {
+                    JsonObject rootObject = root.getAsJsonObject();
+                    String fieldName = isSuccessful ? "content" : "error";
+                    response = rootObject.has(fieldName) ? rootObject.get(fieldName) : rootObject;
+                } else {
+                    response = root;
+                }
             } catch (IOException e) {
                 throw new LaraApiConnectionException("Failed to get response stream", e);
             }

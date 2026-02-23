@@ -40,9 +40,9 @@ public class Documents {
      * @throws LaraException
      */
     public Document upload(File file, String source, String target, DocumentUploadOptions options) throws LaraException, S3Exception {
-        S3UploadParams s3Params = client.get("/documents/upload-url", new HttpParams<>()
+        S3UploadParams s3Params = client.get("/v2/documents/upload-url?" + new HttpParams<String>()
                 .set("filename", file.getName())
-                .build()
+                .toQueryString()
         ).as(S3UploadParams.class);
 
         s3Client.upload(s3Params.getUrl(), s3Params.getFields(), file);
@@ -59,7 +59,7 @@ public class Documents {
             headers.put("X-No-Trace", "true");
         }
 
-        return client.post("/documents", params.build(), null, headers).as(Document.class);
+        return client.post("/v2/documents", params.build(), null, headers).as(Document.class);
     }
 
     /***
@@ -69,7 +69,7 @@ public class Documents {
      * @throws LaraException
      */
     public Document status(String id) throws LaraException {
-        return client.get("/documents/" + id).as(Document.class);
+        return client.get("/v2/documents/" + id).as(Document.class);
     }
 
     public InputStream download(String id) throws S3Exception, LaraException {
@@ -86,7 +86,7 @@ public class Documents {
     public InputStream download(String id, DocumentDownloadOptions options) throws S3Exception, LaraException {
         HttpParams<Object> params = options == null ? null : options.toParams();
 
-        String downloadUrl = client.get("/documents/" + id + "/download-url", params != null ? params.build() : null)
+        String downloadUrl = client.get("/v2/documents/" + id + "/download-url?" + (params != null ? params.toQueryString() : ""))
                 .as(Map.class)
                 .get("url")
                 .toString();
@@ -117,7 +117,7 @@ public class Documents {
         DocumentUploadOptions uploadOptions = options != null ? new DocumentUploadOptions() : null;
         if (options != null && options.getAdaptTo() != null) uploadOptions.setAdaptTo(options.getAdaptTo());
         if (options != null && options.getGlossaries() != null) uploadOptions.setGlossaries(options.getGlossaries());
-        if (options != null && options.getNoTrace()) uploadOptions.setNoTrace(true);
+        if (options != null && Boolean.TRUE.equals(options.getNoTrace())) uploadOptions.setNoTrace(true);
         if (options != null && options.getStyle() != null) uploadOptions.setStyle(options.getStyle());
         if (options != null && options.getPassword() != null) uploadOptions.setPassword(options.getPassword());
         if (options != null && options.getExtractionParams() != null) uploadOptions.setExtractionParams(options.getExtractionParams());
