@@ -10,6 +10,7 @@ All major translation features are accessible, making it easy to integrate and c
 ## 🌍 **Features:**
 - **Text Translation**: Single strings, multiple strings, and complex text blocks
 - **Document Translation**: Word, PDF, and other document formats with status monitoring
+- **Audio Translation**: Audio files with status monitoring
 - **Translation Memory**: Store and reuse translations for consistency
 - **Glossaries**: Enforce terminology standards across translations
 - **Language Detection**: Automatic source language identification
@@ -111,6 +112,18 @@ java -cp .:../target/classes:../target/dependency/* TextTranslation
 cd examples
 javac -cp ../target/classes:../target/dependency/* DocumentTranslation.java
 java -cp .:../target/classes:../target/dependency/* DocumentTranslation
+```
+
+### Audio Translation
+- **[AudioTranslation.java](examples/AudioTranslation.java)** - Audio translation examples
+  - Basic audio translation
+  - Advanced options with memories and glossaries
+  - Step-by-step translation with status monitoring
+
+```bash
+cd examples
+javac -cp ../target/classes:../target/dependency/* AudioTranslation.java
+java -cp .:../target/classes:../target/dependency/* AudioTranslation
 ```
 
 ### Translation Memory Management
@@ -239,6 +252,40 @@ String status = lara.documents.status(document.getId());
 #### Download translated document
 ```java
 InputStream fileStream = lara.documents.download(document.getId());
+```
+
+### 🎵 Audio Translation
+#### Simple audio translation
+```java
+File inputFile = new File("/path/to/your/audio.mp3");
+InputStream audioStream = lara.audio.translate(inputFile, "en-US", "fr-FR");
+
+// With options
+AudioUploadOptions options = new AudioUploadOptions()
+    .setAdaptTo("memory-id")  // Replace with actual memory IDs
+    .setGlossaries("glossary-id")  // Replace with actual glossary IDs
+    .setStyle(TranslationStyle.FLUID)
+    .setNoTrace(false);
+
+InputStream audioStream = lara.audio.translate(inputFile, "en-US", "fr-FR", options);
+```
+#### Audio translation with status monitoring
+#### Audio upload
+```java
+AudioUploadOptions uploadOptions = new AudioUploadOptions()
+    .setAdaptTo("memory-id")  // Replace with actual memory IDs
+    .setGlossaries("glossary-id")  // Replace with actual glossary IDs
+    .setNoTrace(false);
+
+Audio audio = lara.audio.upload(inputFile, "en-US", "fr-FR", uploadOptions);
+```
+#### Audio translation status monitoring
+```java
+Audio status = lara.audio.status(audio.getId());
+```
+#### Download translated audio
+```java
+InputStream audioStream = lara.audio.download(audio.getId());
 ```
 
 ### 🧠 Memory Management
