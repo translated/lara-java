@@ -30,6 +30,7 @@ public class TranslateOptions {
     private TranslationStyle style = null;
     private Boolean reasoning = null;
     private Map<String, String> headers = null;
+    private Object metadata = null;
 
     public String getSourceHint() {
         return sourceHint;
@@ -163,6 +164,20 @@ public class TranslateOptions {
         return this;
     }
 
+    public Object getMetadata() {
+        return metadata;
+    }
+
+    public TranslateOptions setMetadata(String metadata) {
+        this.metadata = metadata;
+        return this;
+    }
+
+    public TranslateOptions setMetadata(Map<String, Object> metadata) {
+        this.metadata = metadata;
+        return this;
+    }
+
     public TranslationStyle getStyle() {
         return style;
     }
@@ -196,6 +211,7 @@ public class TranslateOptions {
         params.set("verbose", verbose);
         params.set("style", TranslationStyle.toString(style));
         params.set("reasoning", reasoning);
+        params.set("metadata", metadata);
 
         return params;
     }
