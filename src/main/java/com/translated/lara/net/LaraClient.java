@@ -15,9 +15,11 @@ import com.translated.lara.errors.LaraException;
 import com.translated.lara.net.json.AudioStatusTypeAdapter;
 import com.translated.lara.net.json.DocumentStatusTypeAdapter;
 import com.translated.lara.net.json.TextResultValueTypeAdapter;
+import com.translated.lara.net.json.VoiceGenderTypeAdapter;
 import com.translated.lara.translator.Audio;
 import com.translated.lara.translator.Document;
 import com.translated.lara.translator.TextResult;
+import com.translated.lara.translator.VoiceGender;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -46,6 +48,7 @@ public class LaraClient {
             .registerTypeAdapter(TextResult.Value.class, new TextResultValueTypeAdapter())
             .registerTypeAdapter(Document.Status.class, new DocumentStatusTypeAdapter())
             .registerTypeAdapter(Audio.Status.class, new AudioStatusTypeAdapter())
+            .registerTypeAdapter(VoiceGender.class, new VoiceGenderTypeAdapter())
             .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
             .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
             .create();
@@ -384,7 +387,7 @@ public class LaraClient {
             AuthenticationResponse authResponse = response.as(AuthenticationResponse.class);
 
             if (authResponse == null || authResponse.getToken() == null || authResponse.getToken().isEmpty()) {
-                throw new LaraApiConnectionException("Missing access token in authentication response: " + response.toString());
+                throw new LaraApiConnectionException("Missing access token in authentication response: " + response);
             }
 
             String refreshToken = connection.getHeaderField("x-lara-refresh-token");

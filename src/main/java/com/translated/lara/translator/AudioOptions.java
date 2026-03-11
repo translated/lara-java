@@ -15,6 +15,7 @@ public class AudioOptions {
     private String[] glossaries = null;
     private Boolean noTrace = null;
     private TranslationStyle style = null;
+    private VoiceGender voiceGender = null;
 
     /**
      * Returns the list of adaptation targets (for example customer IDs or domains).
@@ -112,6 +113,24 @@ public class AudioOptions {
     }
 
     /**
+     * Returns the voice gender for the translated audio synthesis.
+     */
+    public VoiceGender getVoiceGender() {
+        return voiceGender;
+    }
+
+    /**
+     * Sets the voice gender for the translated audio synthesis.
+     *
+     * @param voiceGender voice gender; may be {@code null}
+     * @return this {@code AudioOptions} instance for method chaining
+     */
+    public AudioOptions setVoiceGender(VoiceGender voiceGender) {
+        this.voiceGender = voiceGender;
+        return this;
+    }
+
+    /**
      * Converts the configured options into HTTP parameters
      * to be sent to the LARA audio translation endpoint.
      *
@@ -122,6 +141,7 @@ public class AudioOptions {
         params.set("adapt_to", adaptTo);
         params.set("glossaries", glossaries);
         params.set("style", TranslationStyle.toString(style));
+        params.set("voice_gender", VoiceGender.toString(voiceGender));
 
         return params;
     }
