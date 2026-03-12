@@ -135,9 +135,11 @@ public class LaraClient {
         path = normalizePath(path);
         headers = prune(headers);
 
-        HttpURLConnection connection = connect(baseUrl + path);
+        if (this.authToken == null || this.authToken.isTokenExpired()) {
+            this.refreshOrReauthenticate();
+        }
 
-        if (this.authToken == null) authToken = this.authenticate();
+        HttpURLConnection connection = connect(baseUrl + path);
 
         try {
             if (connectionTimeout > 0) connection.setConnectTimeout(connectionTimeout);
@@ -181,8 +183,10 @@ public class LaraClient {
             boolean isSuccessful = responseCode >= 200 && responseCode < 300;
             if (!isSuccessful) {
                 String errorBody = readErrorStream(connection);
+                connection.disconnect();
+
                 if (responseCode == 401 && !isRetry && errorBody != null && errorBody.contains("jwt expired")) {
-                    this.refreshToken();
+                    this.refreshOrReauthenticate();
                     return requestLineStream(method, path, body, headers, true);
                 }
                 if (errorBody != null) {
@@ -209,6 +213,7 @@ public class LaraClient {
                 });
 
         } catch (IOException e) {
+            connection.disconnect();
             throw new LaraApiConnectionException("Streaming request failed: " + e.getMessage(), e);
         }
     }
@@ -225,9 +230,11 @@ public class LaraClient {
         path = normalizePath(path);
         headers = prune(headers);
 
-        HttpURLConnection connection = connect(baseUrl + path);
+        if (this.authToken == null || this.authToken.isTokenExpired()) {
+            this.refreshOrReauthenticate();
+        }
 
-        if (this.authToken == null) authToken = this.authenticate();
+        HttpURLConnection connection = connect(baseUrl + path);
 
         try {
             if (connectionTimeout > 0) connection.setConnectTimeout(connectionTimeout);
@@ -263,9 +270,8 @@ public class LaraClient {
             if (responseCode == 401) {
                 String errorBody = readErrorStream(connection);
 
-                // TODO: improve check for expired token
                 if (errorBody != null && errorBody.contains("jwt expired") && !isRetry) {
-                    this.refreshToken();
+                    this.refreshOrReauthenticate();
                     return this.request(method, path, body, headers, true);
                 }
             }
@@ -287,9 +293,11 @@ public class LaraClient {
         path = normalizePath(path);
         headers = prune(headers);
 
-        HttpURLConnection connection = connect(baseUrl + path);
+        if (this.authToken == null || this.authToken.isTokenExpired()) {
+            this.refreshOrReauthenticate();
+        }
 
-        if (this.authToken == null) authToken = this.authenticate();
+        HttpURLConnection connection = connect(baseUrl + path);
 
         try {
             if (connectionTimeout > 0) connection.setConnectTimeout(connectionTimeout);
@@ -333,8 +341,10 @@ public class LaraClient {
             boolean isSuccessful = responseCode >= 200 && responseCode < 300;
             if (!isSuccessful) {
                 String errorBody = readErrorStream(connection);
+                connection.disconnect();
+
                 if (responseCode == 401 && !isRetry && errorBody != null && errorBody.contains("jwt expired")) {
-                    this.refreshToken();
+                    this.refreshOrReauthenticate();
                     return requestStream(method, path, body, headers, true);
                 }
                 if (errorBody != null) {
@@ -343,19 +353,32 @@ public class LaraClient {
                 throw new LaraApiConnectionException("HTTP error code: " + responseCode);
             }
 
-            // String contentType = connection.getContentType();
             return connection.getInputStream();
-            // connection.disconnect();
         } catch (IOException e) {
+            connection.disconnect();
             throw new LaraApiConnectionException("Streaming request failed: " + e.getMessage(), e);
         }
     }
 
-    private AuthToken authenticate() throws LaraException {
-        if (this.authToken != null) return this.authToken;
-        if (this.accessKey != null) return this.authenticate(this.accessKey);
-        throw new Error("No authentication method available");
+    private void refreshOrReauthenticate() throws LaraException {
+        if (this.authToken != null && this.authToken.getRefreshToken() != null
+                && !this.authToken.getRefreshToken().isEmpty()) {
+            try {
+                this.refreshToken();
+                return;
+            } catch (LaraException e) {
+                if (this.accessKey == null) throw e;
+            }
+        }
+
+        if (this.accessKey != null) {
+            this.authToken = this.authenticate(this.accessKey);
+            return;
+        }
+
+        throw new LaraApiConnectionException("No authentication method available for token renewal");
     }
+
     private AuthToken authenticate(AccessKey accessKey) throws LaraException {
         String path = "/v2/auth";
         String method = "POST";
@@ -406,7 +429,6 @@ public class LaraClient {
     private void refreshToken() throws LaraException {
         HttpURLConnection connection = connect(baseUrl + "/v2/auth/refresh");
 
-
         connection.setUseCaches(false);
         connection.setRequestProperty("Date", date());
         connection.setRequestProperty("X-Lara-SDK-Name", "lara-java");
@@ -425,7 +447,7 @@ public class LaraClient {
 
             String refreshToken = connection.getHeaderField("x-lara-refresh-token");
             if (refreshToken == null || refreshToken.isEmpty()) {
-                throw new LaraApiConnectionException("Missing refresh token in authentication response");
+                throw new LaraApiConnectionException("Missing refresh token in refresh response");
             }
             this.authToken = new AuthToken(authResponse.getToken(), refreshToken);
         } catch (IOException e) {
