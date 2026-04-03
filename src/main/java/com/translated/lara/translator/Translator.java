@@ -104,7 +104,16 @@ public class Translator {
             params.set("passlist", passlist);
         }
 
-        return client.post("/v2/detect", params.build()).as(DetectResult.class);
+        return client.post("/v2/detect/language", params.build()).as(DetectResult.class);
+    }
+
+    public ProfanityDetectResult detectProfanities(String text, String language, ContentType contentType) throws LaraException {
+        HttpParams<Object> params = new HttpParams<>();
+        params.set("text", text);
+        params.set("language", language);
+        params.set("content_type", contentType.toString());
+
+        return client.post("/v2/detect/profanities", params.build()).as(ProfanityDetectResult.class);
     }
 
     public TextResult translate(String text, String source, String target) throws LaraException {
