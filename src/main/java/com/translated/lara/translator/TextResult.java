@@ -229,6 +229,52 @@ public class TextResult {
         }
     }
 
+    @JsonAdapter(ProfanitiesValueDeserializer.class)
+    public static class ProfanitiesValue {
+        private final ProfanityDetectResult single;
+        private final List<ProfanityDetectResult> list;
+
+        public ProfanitiesValue(ProfanityDetectResult single) {
+            this.single = single;
+            this.list = null;
+        }
+
+        public ProfanitiesValue(List<ProfanityDetectResult> list) {
+            this.single = null;
+            this.list = list;
+        }
+
+        public ProfanityDetectResult getSingle() {
+            return single;
+        }
+
+        public List<ProfanityDetectResult> getList() {
+            return list;
+        }
+
+        @Override
+        public String toString() {
+            if (single != null) return single.toString();
+            if (list != null) return list.toString();
+            return null;
+        }
+    }
+
+    public static class ProfanitiesValueDeserializer implements JsonDeserializer<ProfanitiesValue> {
+        @Override
+        public ProfanitiesValue deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+            if (json.isJsonObject()) {
+                ProfanityDetectResult single = context.deserialize(json, ProfanityDetectResult.class);
+                return new ProfanitiesValue(single);
+            } else if (json.isJsonArray()) {
+                Type listType = new TypeToken<List<ProfanityDetectResult>>(){}.getType();
+                List<ProfanityDetectResult> list = context.deserialize(json, listType);
+                return new ProfanitiesValue(list);
+            }
+            throw new JsonParseException("Expected JSON object or array for profanities");
+        }
+    }
+
     private final String contentType;
     private final String sourceLanguage;
     private final List<String> adaptedTo;
@@ -237,6 +283,7 @@ public class TextResult {
     private final Value translation;
     private final AdaptedToMatchesValue adaptedToMatches;
     private final GlossariesMatchesValue glossariesMatches;
+    private final ProfanitiesValue profanities;
 
     public TextResult(String contentType, String sourceLanguage, String translation, String[] adaptedTo, String[] glossaries) {
         this.contentType = contentType;
@@ -247,6 +294,7 @@ public class TextResult {
         this.translation = new Value(translation);
         this.adaptedToMatches = null;
         this.glossariesMatches = null;
+        this.profanities = null;
     }
 
     public TextResult(String contentType, String sourceLanguage, String[] translation, String[] adaptedTo, String[] glossaries) {
@@ -258,6 +306,7 @@ public class TextResult {
         this.translation = new Value(translation);
         this.adaptedToMatches = null;
         this.glossariesMatches = null;
+        this.profanities = null;
     }
 
     public TextResult(String contentType, String sourceLanguage, TextBlock[] translation, String[] adaptedTo, String[] glossaries) {
@@ -269,6 +318,7 @@ public class TextResult {
         this.translation = new Value(translation);
         this.adaptedToMatches = null;
         this.glossariesMatches = null;
+        this.profanities = null;
     }
  
 
@@ -314,6 +364,14 @@ public class TextResult {
 
     public List<List<NGGlossaryMatch>> getGlossariesMatchesList() {
         return glossariesMatches != null ? glossariesMatches.getMatchesList() : null;
+    }
+
+    public ProfanityDetectResult getProfanities() {
+        return profanities != null ? profanities.getSingle() : null;
+    }
+
+    public List<ProfanityDetectResult> getProfanitiesList() {
+        return profanities != null ? profanities.getList() : null;
     }
 
     @Override

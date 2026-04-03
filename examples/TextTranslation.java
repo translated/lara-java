@@ -121,7 +121,35 @@ public class TextTranslation {
             return;
         }
 
-        // Example 7: Translation with reasoning
+        // Example 7: Translation with profanity filter
+        System.out.println("=== Translation with Profanity Filter ===");
+        try {
+            String profanityText = "Don't be such a tool.";
+            TranslateOptions detectOptions = new TranslateOptions()
+                .setProfanityFilter(ProfanityFilter.DETECT);
+            TextResult detectResult = lara.translate(profanityText, "en-US", "it-IT", detectOptions);
+            System.out.println("Original: " + profanityText);
+            System.out.println("Detect mode: " + detectResult.getTranslation());
+            if (detectResult.getProfanities() != null) {
+                System.out.println("Masked text: " + detectResult.getProfanities().getMaskedText());
+                System.out.println("Profanities found: " + detectResult.getProfanities().getProfanities().size());
+            }
+
+            TranslateOptions hideOptions = new TranslateOptions()
+                .setProfanityFilter(ProfanityFilter.HIDE);
+            TextResult hideResult = lara.translate(profanityText, "en-US", "it-IT", hideOptions);
+            System.out.println("Hide mode: " + hideResult.getTranslation());
+
+            TranslateOptions avoidOptions = new TranslateOptions()
+                .setProfanityFilter(ProfanityFilter.AVOID);
+            TextResult avoidResult = lara.translate(profanityText, "en-US", "it-IT", avoidOptions);
+            System.out.println("Avoid mode: " + avoidResult.getTranslation() + "\n");
+        } catch (LaraException e) {
+            System.out.println("Error with profanity filter: " + e.getMessage() + "\n");
+            return;
+        }
+
+        // Example 8: Translation with reasoning
         System.out.println("=== Translation with Reasoning ===");
         try {
             TranslateOptions reasoningOptions = new TranslateOptions()
@@ -142,7 +170,7 @@ public class TextTranslation {
             return;
         }
 
-        // Example 8: Get available languages
+        // Example 9: Get available languages
         System.out.println("=== Available Languages ===");
         try {
             List<String> languages = lara.getLanguages();
@@ -152,7 +180,7 @@ public class TextTranslation {
             return;
         }
 
-        // Example 9: Detect language of a given text
+        // Example 10: Detect language of a given text
         System.out.println("=== Language Detection ===");
         try {
             DetectResult detectResult = lara.detect("Hola, ¿cómo estás?");
@@ -163,7 +191,7 @@ public class TextTranslation {
             return;
         }
 
-        // Example 10: Detect languages with hint and passlist
+        // Example 11: Detect languages with hint and passlist
         System.out.println("=== Language Detection with Hint and Passlist ===");
         try {
             DetectResult detectResult = lara.detect("Hola, ¿cómo estás?", "es", new String[]{"es", "pt", "it"});
@@ -174,7 +202,7 @@ public class TextTranslation {
             return;
         }
 
-        // Example 10: Translation with reasoning
+        // Example 12: Translation with reasoning (streaming)
         System.out.println("=== Translation with Reasoning ===");
         try {
             TranslateOptions reasoningOptions = new TranslateOptions()

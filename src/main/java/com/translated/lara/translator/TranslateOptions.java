@@ -31,6 +31,7 @@ public class TranslateOptions {
     private Boolean reasoning = null;
     private Map<String, String> headers = null;
     private Object metadata = null;
+    private ProfanityFilter profanityFilter = null;
 
     public String getSourceHint() {
         return sourceHint;
@@ -196,6 +197,15 @@ public class TranslateOptions {
         return this;
     }
 
+    public ProfanityFilter getProfanityFilter() {
+        return profanityFilter;
+    }
+
+    public TranslateOptions setProfanityFilter(ProfanityFilter profanityFilter) {
+        this.profanityFilter = profanityFilter;
+        return this;
+    }
+
     public HttpParams<Object> toParams() {
         HttpParams<Object> params = new HttpParams<>();
         params.set("source_hint", sourceHint);
@@ -212,6 +222,7 @@ public class TranslateOptions {
         params.set("style", TranslationStyle.toString(style));
         params.set("reasoning", reasoning);
         params.set("metadata", metadata);
+        params.set("profanity_filter", ProfanityFilter.toString(profanityFilter));
 
         return params;
     }
