@@ -16,6 +16,7 @@ import java.util.function.Consumer;
  * - TextBlocks translation (mixed translatable/non-translatable content)
  * - Auto-detect source language
  * - Advanced options
+ * - Translation with styleguides
  * - Get available languages
  */
 public class TextTranslation {
@@ -170,7 +171,100 @@ public class TextTranslation {
             return;
         }
 
-        // Example 9: Get available languages
+        // Example 9: List available styleguides
+        System.out.println("=== List Available Styleguides ===");
+        String styleguideId = null;
+        try {
+            List<Styleguide> styleguides = lara.styleguides.list();
+            System.out.println("Total styleguides: " + styleguides.size());
+            for (Styleguide sg : styleguides) {
+                System.out.println("  - " + sg.getName() + " (ID: " + sg.getId() + ")");
+            }
+
+            if (!styleguides.isEmpty()) {
+                styleguideId = styleguides.get(0).getId();
+            }
+            System.out.println();
+        } catch (LaraException e) {
+            System.out.println("Error listing styleguides: " + e.getMessage() + "\n");
+        }
+
+        // Example 10: Get a specific styleguide by ID
+        if (styleguideId != null) {
+            System.out.println("=== Get Styleguide Details ===");
+            try {
+                Styleguide styleguide = lara.styleguides.get(styleguideId);
+                if (styleguide != null) {
+                    System.out.println("Name: " + styleguide.getName());
+                    System.out.println("ID: " + styleguide.getId());
+                    System.out.println("Owner: " + styleguide.getOwnerId());
+                    System.out.println("Created: " + styleguide.getCreatedAt());
+                    System.out.println("Updated: " + styleguide.getUpdatedAt());
+                }
+                System.out.println();
+            } catch (LaraException e) {
+                System.out.println("Error getting styleguide: " + e.getMessage() + "\n");
+            }
+        }
+
+        // Example 11: Translate with a styleguide
+        if (styleguideId != null) {
+            System.out.println("=== Translate with Styleguide ===");
+            try {
+                TranslateOptions options = new TranslateOptions()
+                        .setStyleguideId(styleguideId);
+
+                TextResult result = lara.translate(
+                        "Our team is excited to announce that the new feature is now available for all users.",
+                        "en-US", "it-IT", options
+                );
+                System.out.println("Original: Our team is excited to announce that the new feature is now available for all users.");
+                System.out.println("Italian (with styleguide): " + result.getTranslation() + "\n");
+            } catch (LaraException e) {
+                System.out.println("Error translating with styleguide: " + e.getMessage() + "\n");
+            }
+        }
+
+        // Example 12: Translate with styleguide reasoning
+        if (styleguideId != null) {
+            System.out.println("=== Translate with Styleguide Reasoning ===");
+            try {
+                TranslateOptions options = new TranslateOptions()
+                        .setStyleguideId(styleguideId)
+                        .setStyleguideReasoning(true)
+                        .setStyleguideExplanationLanguage("en-US");
+
+                TextResult result = lara.translate(
+                        "Please submit the required documentation before the deadline.",
+                        "en-US", "it-IT", options
+                );
+                System.out.println("Original: Please submit the required documentation before the deadline.");
+                System.out.println("Italian (with styleguide): " + result.getTranslation());
+
+                StyleguideResults sgResults = result.getStyleguideResults();
+                if (sgResults != null) {
+                    System.out.println("Original translation (before styleguide): " + sgResults.getOriginalTranslation());
+
+                    List<StyleguideChange> changes = sgResults.getChanges();
+                    if (changes != null && !changes.isEmpty()) {
+                        System.out.println("Changes applied: " + changes.size());
+                        for (StyleguideChange change : changes) {
+                            System.out.println("  Change ID: " + change.getId());
+                            System.out.println("  Before: " + change.getOriginalTranslation());
+                            System.out.println("  After:  " + change.getRefinedTranslation());
+                            System.out.println("  Why:    " + change.getExplanation());
+                        }
+                    } else {
+                        System.out.println("No changes were needed — translation already matches the styleguide.");
+                    }
+                }
+                System.out.println();
+            } catch (LaraException e) {
+                System.out.println("Error with styleguide reasoning: " + e.getMessage() + "\n");
+            }
+        }
+
+        // Example 13: Get available languages
         System.out.println("=== Available Languages ===");
         try {
             List<String> languages = lara.getLanguages();
@@ -180,7 +274,7 @@ public class TextTranslation {
             return;
         }
 
-        // Example 10: Detect language of a given text
+        // Example 14: Detect language of a given text
         System.out.println("=== Language Detection ===");
         try {
             DetectResult detectResult = lara.detect("Hola, ¿cómo estás?");
@@ -191,7 +285,7 @@ public class TextTranslation {
             return;
         }
 
-        // Example 11: Detect languages with hint and passlist
+        // Example 15: Detect languages with hint and passlist
         System.out.println("=== Language Detection with Hint and Passlist ===");
         try {
             DetectResult detectResult = lara.detect("Hola, ¿cómo estás?", "es", new String[]{"es", "pt", "it"});
@@ -202,7 +296,7 @@ public class TextTranslation {
             return;
         }
 
-        // Example 12: Translation with reasoning (streaming)
+        // Example 16: Translation with reasoning (streaming)
         System.out.println("=== Translation with Reasoning ===");
         try {
             TranslateOptions reasoningOptions = new TranslateOptions()

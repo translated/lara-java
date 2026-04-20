@@ -20,6 +20,7 @@ public class Translator {
     public final Memories memories;
     public final Documents documents;
     public final Glossaries glossaries;
+    public final Styleguides styleguides;
     public final ImageTranslator images;
     public final AudioTranslator audio;
 
@@ -31,6 +32,7 @@ public class Translator {
         this.memories = new Memories(client);
         this.documents = new Documents(client);
         this.glossaries = new Glossaries(client);
+        this.styleguides = new Styleguides(client);
         this.images = new ImageTranslator(client);
         this.audio = new AudioTranslator(client);
     }
@@ -43,6 +45,7 @@ public class Translator {
         this.memories = new Memories(client);
         this.documents = new Documents(client);
         this.glossaries = new Glossaries(client);
+        this.styleguides = new Styleguides(client);
         this.images = new ImageTranslator(client);
         this.audio = new AudioTranslator(client);
     }

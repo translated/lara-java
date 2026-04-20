@@ -32,6 +32,9 @@ public class TranslateOptions {
     private Map<String, String> headers = null;
     private Object metadata = null;
     private ProfanityFilter profanityFilter = null;
+    private String styleguideId = null;
+    private Boolean styleguideReasoning = null;
+    private String styleguideExplanationLanguage = null;
 
     public String getSourceHint() {
         return sourceHint;
@@ -206,6 +209,33 @@ public class TranslateOptions {
         return this;
     }
 
+    public String getStyleguideId() {
+        return styleguideId;
+    }
+
+    public TranslateOptions setStyleguideId(String styleguideId) {
+        this.styleguideId = styleguideId;
+        return this;
+    }
+
+    public Boolean getStyleguideReasoning() {
+        return styleguideReasoning;
+    }
+
+    public TranslateOptions setStyleguideReasoning(boolean styleguideReasoning) {
+        this.styleguideReasoning = styleguideReasoning;
+        return this;
+    }
+
+    public String getStyleguideExplanationLanguage() {
+        return styleguideExplanationLanguage;
+    }
+
+    public TranslateOptions setStyleguideExplanationLanguage(String styleguideExplanationLanguage) {
+        this.styleguideExplanationLanguage = styleguideExplanationLanguage;
+        return this;
+    }
+
     public HttpParams<Object> toParams() {
         HttpParams<Object> params = new HttpParams<>();
         params.set("source_hint", sourceHint);
@@ -223,6 +253,9 @@ public class TranslateOptions {
         params.set("reasoning", reasoning);
         params.set("metadata", metadata);
         params.set("profanity_filter", ProfanityFilter.toString(profanityFilter));
+        params.set("styleguide_id", styleguideId);
+        params.set("styleguide_reasoning", styleguideReasoning);
+        params.set("styleguide_explanation_language", styleguideExplanationLanguage);
 
         return params;
     }

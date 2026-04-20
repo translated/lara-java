@@ -13,6 +13,7 @@ All major translation features are accessible, making it easy to integrate and c
 - **Audio Translation**: Audio files with status monitoring
 - **Translation Memory**: Store and reuse translations for consistency
 - **Glossaries**: Enforce terminology standards across translations
+- **Styleguides**: Apply custom translation style rules with detailed change reasoning
 - **Language Detection**: Automatic source language identification
 - **Advanced Options**: Translation instructions, reasoning, and more
 
@@ -93,6 +94,7 @@ export LARA_ACCESS_KEY_SECRET="your-access-key-secret"
   - TextBlocks translation (mixed translatable/non-translatable content)
   - Auto-detect source language
   - Advanced translation options
+  - Translation with styleguides
   - Get available languages
   - Detect language
 
@@ -359,6 +361,51 @@ String csvData = lara.glossaries.export("gls_1A2b3C4d5E6f7G8h9I0jKl", Glossary.T
 GlossaryCounts counts = lara.glossaries.counts("gls_1A2b3C4d5E6f7G8h9I0jKl");
 ```
 
+### 🎨 Styleguides
+
+Styleguides let you apply custom translation style rules. They can be listed and retrieved through the SDK.
+
+```java
+// List all styleguides
+List<Styleguide> styleguides = lara.styleguides.list();
+
+// Get a specific styleguide by ID
+Styleguide styleguide = lara.styleguides.get("stg_1A2b3C4d5E6f7G8h9I0jKl");
+```
+
+#### Translate with a styleguide
+
+```java
+TranslateOptions options = new TranslateOptions()
+    .setStyleguideId("stg_1A2b3C4d5E6f7G8h9I0jKl");  // Replace with actual styleguide ID
+
+TextResult result = lara.translate("Hello, world!", "en-US", "it-IT", options);
+```
+
+#### Styleguide reasoning
+
+Enable reasoning to see what the styleguide changed and why:
+
+```java
+TranslateOptions options = new TranslateOptions()
+    .setStyleguideId("stg_1A2b3C4d5E6f7G8h9I0jKl")
+    .setStyleguideReasoning(true)
+    .setStyleguideExplanationLanguage("en-US");
+
+TextResult result = lara.translate("Hello, world!", "en-US", "it-IT", options);
+
+StyleguideResults sgResults = result.getStyleguideResults();
+if (sgResults != null) {
+    System.out.println("Original translation: " + sgResults.getOriginalTranslation());
+
+    for (StyleguideChange change : sgResults.getChanges()) {
+        System.out.println("Before: " + change.getOriginalTranslation());
+        System.out.println("After:  " + change.getRefinedTranslation());
+        System.out.println("Why:    " + change.getExplanation());
+    }
+}
+```
+
 ### Translation Options
 
 ```java
@@ -373,6 +420,9 @@ public class TranslateOptions {
     setSourceHint(String sourceHint)            // Hint for source language detection
     setNoTrace(Boolean noTrace)                 // Disable request tracing
     setVerbose(Boolean verbose)                 // Enable verbose response
+    setStyleguideId(String id)                  // Styleguide ID to apply
+    setStyleguideReasoning(boolean enabled)     // Enable styleguide change reasoning
+    setStyleguideExplanationLanguage(String lang) // Language for change explanations
 }
 ```
 

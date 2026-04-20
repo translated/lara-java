@@ -284,6 +284,7 @@ public class TextResult {
     private final AdaptedToMatchesValue adaptedToMatches;
     private final GlossariesMatchesValue glossariesMatches;
     private final ProfanitiesValue profanities;
+    private final StyleguideResults styleguideResults;
 
     public TextResult(String contentType, String sourceLanguage, String translation, String[] adaptedTo, String[] glossaries) {
         this.contentType = contentType;
@@ -295,6 +296,7 @@ public class TextResult {
         this.adaptedToMatches = null;
         this.glossariesMatches = null;
         this.profanities = null;
+        this.styleguideResults = null;
     }
 
     public TextResult(String contentType, String sourceLanguage, String[] translation, String[] adaptedTo, String[] glossaries) {
@@ -307,6 +309,7 @@ public class TextResult {
         this.adaptedToMatches = null;
         this.glossariesMatches = null;
         this.profanities = null;
+        this.styleguideResults = null;
     }
 
     public TextResult(String contentType, String sourceLanguage, TextBlock[] translation, String[] adaptedTo, String[] glossaries) {
@@ -319,6 +322,7 @@ public class TextResult {
         this.adaptedToMatches = null;
         this.glossariesMatches = null;
         this.profanities = null;
+        this.styleguideResults = null;
     }
  
 
@@ -372,6 +376,10 @@ public class TextResult {
 
     public List<ProfanityDetectResult> getProfanitiesList() {
         return profanities != null ? profanities.getList() : null;
+    }
+
+    public StyleguideResults getStyleguideResults() {
+        return styleguideResults;
     }
 
     @Override

@@ -41,7 +41,6 @@ public class ClientResponse {
         }
 
         boolean isSuccessful = httpStatus >= 200 && httpStatus < 300;
-
         if (isSuccessful && contentType != null && contentType.contains("text/csv")) {
             try (BufferedReader reader = new BufferedReader(
                     new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
@@ -53,14 +52,7 @@ public class ClientResponse {
         } else {
             JsonElement response;
             try (Reader reader = new InputStreamReader(isSuccessful ? connection.getInputStream() : connection.getErrorStream(), StandardCharsets.UTF_8)) {
-                JsonElement root = JsonParser.parseReader(reader);
-                if (root.isJsonObject()) {
-                    JsonObject rootObject = root.getAsJsonObject();
-                    String fieldName = isSuccessful ? "content" : "error";
-                    response = rootObject.has(fieldName) ? rootObject.get(fieldName) : rootObject;
-                } else {
-                    response = root;
-                }
+                response = JsonParser.parseReader(reader);
             } catch (IOException e) {
                 throw new LaraApiConnectionException("Failed to get response stream", e);
             }
