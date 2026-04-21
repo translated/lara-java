@@ -112,7 +112,7 @@ public class TextTranslation {
                 .setInstructions("Be professional")
                 .setStyle(TranslationStyle.FLUID)
                 .setContentType("text/plain")
-                .setTimeoutMs(10000L)
+                .setTimeoutMs(10000L);
 
             TextResult result = lara.translate("This is a comprehensive translation example", "en-US", "it-IT", options);
             System.out.println("Original: This is a comprehensive translation example");
@@ -296,7 +296,35 @@ public class TextTranslation {
             return;
         }
 
-        // Example 16: Translation with reasoning (streaming)
+        // Example 16: Quality estimation for a single sentence pair
+        System.out.println("=== Quality Estimation: single sentence ===");
+        try {
+            QualityEstimationResult qeSingle = lara.qualityEstimation(
+                    "en-US", "it-IT",
+                    "Hello, how are you today?",
+                    "Ciao, come stai oggi?"
+            );
+            System.out.println("Score: " + qeSingle.getScore() + "\n");
+        } catch (LaraException e) {
+            System.out.println("Error in quality estimation (single): " + e.getMessage() + "\n");
+            return;
+        }
+
+        // Example 17: Quality estimation for a batch of sentence pairs
+        System.out.println("=== Quality Estimation: batch ===");
+        try {
+            List<QualityEstimationResult> qeBatch = lara.qualityEstimation(
+                    "en-US", "it-IT",
+                    Arrays.asList("Good morning.", "The weather is nice."),
+                    Arrays.asList("Buongiorno.", "Il tempo è bello.")
+            );
+            System.out.println("Scores: " + qeBatch.stream().map(r -> Double.toString(r.getScore())).reduce((a, b) -> a + ", " + b).orElse("") + "\n");
+        } catch (LaraException e) {
+            System.out.println("Error in quality estimation (batch): " + e.getMessage() + "\n");
+            return;
+        }
+
+        // Example 18: Translation with reasoning (streaming)
         System.out.println("=== Translation with Reasoning ===");
         try {
             TranslateOptions reasoningOptions = new TranslateOptions()

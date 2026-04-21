@@ -119,6 +119,30 @@ public class Translator {
         return client.post("/v2/detect/profanities", params.build()).as(ProfanityDetectResult.class);
     }
 
+    public QualityEstimationResult qualityEstimation(String source, String target, String sentence, String translation) throws LaraException {
+        HttpParams<Object> params = new HttpParams<>();
+        params.set("source", source);
+        params.set("target", target);
+        params.set("sentence", sentence);
+        params.set("translation", translation);
+
+        return client.post("/v2/detect/quality-estimation", params.build()).as(QualityEstimationResult.class);
+    }
+
+    public List<QualityEstimationResult> qualityEstimation(String source, String target, List<String> sentences, List<String> translations) throws LaraException {
+        HttpParams<Object> params = new HttpParams<>();
+        params.set("source", source);
+        params.set("target", target);
+        params.set("sentence", sentences);
+        params.set("translation", translations);
+
+        return client.post("/v2/detect/quality-estimation", params.build()).asList(QualityEstimationResult.class);
+    }
+
+    public List<QualityEstimationResult> qualityEstimation(String source, String target, String[] sentences, String[] translations) throws LaraException {
+        return qualityEstimation(source, target, Arrays.asList(sentences), Arrays.asList(translations));
+    }
+
     public TextResult translate(String text, String source, String target) throws LaraException {
         return translateAny(text, source, target, null);
     }

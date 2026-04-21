@@ -220,6 +220,30 @@ TranslateOptions options = new TranslateOptions()
 TextResult result = lara.translate("Hello", "en-US", "fr-FR", options);
 ```
 
+#### Quality Estimation
+
+Use `qualityEstimation()` to score how well a translation matches its source. Pass a single sentence/translation pair to get a single result, or two parallel lists to get one result per pair.
+
+```java
+// Single pair
+QualityEstimationResult single = lara.qualityEstimation(
+    "en-US",
+    "it-IT",
+    "Hello, how are you today?",
+    "Ciao, come stai oggi?"
+);
+System.out.println(single.getScore()); // e.g. 0.768
+
+// Batch
+List<QualityEstimationResult> batch = lara.qualityEstimation(
+    "en-US",
+    "it-IT",
+    Arrays.asList("Good morning.", "The weather is nice."),
+    Arrays.asList("Buongiorno.", "Il tempo è bello.")
+);
+System.out.println(batch.stream().map(QualityEstimationResult::getScore).collect(java.util.stream.Collectors.toList())); // e.g. [0.751, 0.713]
+```
+
 ### 📖 Document Translation
 #### Simple document translation
 
