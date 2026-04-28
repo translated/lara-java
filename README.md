@@ -15,6 +15,7 @@ All major translation features are accessible, making it easy to integrate and c
 - **Glossaries**: Enforce terminology standards across translations
 - **Styleguides**: Apply custom translation style rules with detailed change reasoning
 - **Language Detection**: Automatic source language identification
+- **Profanity Detection & Handling**: Detect profanities in source and/or target text, and hide or avoid them in translation
 - **Advanced Options**: Translation instructions, reasoning, and more
 
 ## 📚 Documentation
@@ -94,6 +95,7 @@ export LARA_ACCESS_KEY_SECRET="your-access-key-secret"
   - TextBlocks translation (mixed translatable/non-translatable content)
   - Auto-detect source language
   - Advanced translation options
+  - Profanity detection and handling
   - Translation with styleguides
   - Get available languages
   - Detect language
@@ -242,6 +244,28 @@ List<QualityEstimationResult> batch = lara.qualityEstimation(
     Arrays.asList("Buongiorno.", "Il tempo è bello.")
 );
 System.out.println(batch.stream().map(QualityEstimationResult::getScore).collect(java.util.stream.Collectors.toList())); // e.g. [0.751, 0.713]
+```
+
+#### Profanity Detection and Handling
+
+Use `setProfanitiesDetect` and `setProfanitiesHandling` together to control how profanities are detected and handled.
+
+- `ProfanitiesDetect.TARGET` — detect profanities in the translated text only
+- `ProfanitiesDetect.SOURCE_TARGET` — detect in both source and target text
+- `ProfanitiesHandling.DETECT` — report profanities without modifying the translation
+- `ProfanitiesHandling.HIDE` — replace detected profanities with asterisks (default when detect is set)
+- `ProfanitiesHandling.AVOID` — instruct the model not to generate profanities
+
+```java
+TranslateOptions options = new TranslateOptions()
+    .setProfanitiesDetect(ProfanitiesDetect.SOURCE_TARGET)
+    .setProfanitiesHandling(ProfanitiesHandling.DETECT);
+
+TextResult result = lara.translate("Don't be such a tool.", "en-US", "it-IT", options);
+
+TextResult.ProfanitiesResult profanities = result.getProfanitiesResult();
+// profanities.getTarget() — detection result for the translated text
+// profanities.getSource() — detection result for the source text (only with SOURCE_TARGET)
 ```
 
 ### 📖 Document Translation
@@ -444,6 +468,8 @@ public class TranslateOptions {
     setSourceHint(String sourceHint)            // Hint for source language detection
     setNoTrace(Boolean noTrace)                 // Disable request tracing
     setVerbose(Boolean verbose)                 // Enable verbose response
+    setProfanitiesDetect(ProfanitiesDetect d)   // Detect profanities in: TARGET or SOURCE_TARGET
+    setProfanitiesHandling(ProfanitiesHandling h) // How to handle detected profanities: DETECT, HIDE, or AVOID
     setStyleguideId(String id)                  // Styleguide ID to apply
     setStyleguideReasoning(boolean enabled)     // Enable styleguide change reasoning
     setStyleguideExplanationLanguage(String lang) // Language for change explanations

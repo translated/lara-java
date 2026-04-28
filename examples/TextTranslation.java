@@ -1,10 +1,21 @@
-import com.translated.lara.Credentials;
-import com.translated.lara.errors.LaraException;
-import com.translated.lara.translator.*;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
+
+import com.translated.lara.Credentials;
+import com.translated.lara.errors.LaraException;
+import com.translated.lara.translator.DetectResult;
+import com.translated.lara.translator.ProfanitiesDetect;
+import com.translated.lara.translator.ProfanitiesHandling;
+import com.translated.lara.translator.QualityEstimationResult;
+import com.translated.lara.translator.Styleguide;
+import com.translated.lara.translator.StyleguideChange;
+import com.translated.lara.translator.StyleguideResults;
+import com.translated.lara.translator.TextBlock;
+import com.translated.lara.translator.TextResult;
+import com.translated.lara.translator.TranslateOptions;
+import com.translated.lara.translator.TranslationStyle;
+import com.translated.lara.translator.Translator;
 
 /**
  * Complete text translation examples for the Lara Java SDK
@@ -122,31 +133,36 @@ public class TextTranslation {
             return;
         }
 
-        // Example 7: Translation with profanity filter
-        System.out.println("=== Translation with Profanity Filter ===");
+        // Example 7: Translation with profanity detection and handling
+        System.out.println("=== Translation with Profanity Detection and Handling ===");
         try {
             String profanityText = "Don't be such a tool.";
+
+            // Detect profanities in both source and target, report without modifying the translation
             TranslateOptions detectOptions = new TranslateOptions()
-                .setProfanityFilter(ProfanityFilter.DETECT);
+                .setProfanitiesDetect(ProfanitiesDetect.SOURCE_TARGET)
+                .setProfanitiesHandling(ProfanitiesHandling.DETECT);
             TextResult detectResult = lara.translate(profanityText, "en-US", "it-IT", detectOptions);
             System.out.println("Original: " + profanityText);
-            System.out.println("Detect mode: " + detectResult.getTranslation());
-            if (detectResult.getProfanities() != null) {
-                System.out.println("Masked text: " + detectResult.getProfanities().getMaskedText());
-                System.out.println("Profanities found: " + detectResult.getProfanities().getProfanities().size());
+            System.out.println("Detect mode translation: " + detectResult.getTranslation());
+            TextResult.ProfanitiesResult detectProfanities = detectResult.getProfanitiesResult();
+            if (detectProfanities != null && detectProfanities.getTarget() != null) {
+                System.out.println("Target masked text: " + detectProfanities.getTarget().getSingle().getMaskedText());
+                System.out.println("Target profanities found: " + detectProfanities.getTarget().getSingle().getProfanities().size());
+            }
+            if (detectProfanities != null && detectProfanities.getSource() != null) {
+                System.out.println("Source masked text: " + detectProfanities.getSource().getSingle().getMaskedText());
             }
 
+            // Detect profanities in target only and hide them (replace them with asterisks)
             TranslateOptions hideOptions = new TranslateOptions()
-                .setProfanityFilter(ProfanityFilter.HIDE);
+                .setProfanitiesDetect(ProfanitiesDetect.TARGET)
+                .setProfanitiesHandling(ProfanitiesHandling.HIDE);
             TextResult hideResult = lara.translate(profanityText, "en-US", "it-IT", hideOptions);
-            System.out.println("Hide mode: " + hideResult.getTranslation());
+            System.out.println("Hide mode translation: " + hideResult.getTranslation());
 
-            TranslateOptions avoidOptions = new TranslateOptions()
-                .setProfanityFilter(ProfanityFilter.AVOID);
-            TextResult avoidResult = lara.translate(profanityText, "en-US", "it-IT", avoidOptions);
-            System.out.println("Avoid mode: " + avoidResult.getTranslation() + "\n");
         } catch (LaraException e) {
-            System.out.println("Error with profanity filter: " + e.getMessage() + "\n");
+            System.out.println("Error with profanity detection: " + e.getMessage() + "\n");
             return;
         }
 

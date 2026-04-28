@@ -31,7 +31,8 @@ public class TranslateOptions {
     private Boolean reasoning = null;
     private Map<String, String> headers = null;
     private Object metadata = null;
-    private ProfanityFilter profanityFilter = null;
+    private ProfanitiesDetect profanitiesDetect = null;
+    private ProfanitiesHandling profanitiesHandling = null;
     private String styleguideId = null;
     private Boolean styleguideReasoning = null;
     private String styleguideExplanationLanguage = null;
@@ -200,12 +201,21 @@ public class TranslateOptions {
         return this;
     }
 
-    public ProfanityFilter getProfanityFilter() {
-        return profanityFilter;
+    public ProfanitiesDetect getProfanitiesDetect() {
+        return profanitiesDetect;
     }
 
-    public TranslateOptions setProfanityFilter(ProfanityFilter profanityFilter) {
-        this.profanityFilter = profanityFilter;
+    public TranslateOptions setProfanitiesDetect(ProfanitiesDetect profanitiesDetect) {
+        this.profanitiesDetect = profanitiesDetect;
+        return this;
+    }
+
+    public ProfanitiesHandling getProfanitiesHandling() {
+        return profanitiesHandling;
+    }
+
+    public TranslateOptions setProfanitiesHandling(ProfanitiesHandling profanitiesHandling) {
+        this.profanitiesHandling = profanitiesHandling;
         return this;
     }
 
@@ -252,7 +262,8 @@ public class TranslateOptions {
         params.set("style", TranslationStyle.toString(style));
         params.set("reasoning", reasoning);
         params.set("metadata", metadata);
-        params.set("profanity_filter", ProfanityFilter.toString(profanityFilter));
+        params.set("profanities_detect", ProfanitiesDetect.toString(profanitiesDetect));
+        params.set("profanities_handling", ProfanitiesHandling.toString(profanitiesHandling));
         params.set("styleguide_id", styleguideId);
         params.set("styleguide_reasoning", styleguideReasoning);
         params.set("styleguide_explanation_language", styleguideExplanationLanguage);

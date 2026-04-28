@@ -229,6 +229,10 @@ public class TextResult {
         }
     }
 
+    /**
+     * Holds a single ProfanityDetectResult or a list of them (one per input segment).
+     * Used for both the {@code target} and {@code source} fields of {@link ProfanitiesResult}.
+     */
     @JsonAdapter(ProfanitiesValueDeserializer.class)
     public static class ProfanitiesValue {
         private final ProfanityDetectResult single;
@@ -271,7 +275,55 @@ public class TextResult {
                 List<ProfanityDetectResult> list = context.deserialize(json, listType);
                 return new ProfanitiesValue(list);
             }
-            throw new JsonParseException("Expected JSON object or array for profanities");
+            throw new JsonParseException("Expected JSON object or array for profanities value");
+        }
+    }
+
+    /**
+     * Wraps profanity detection results for both target and (optionally) source text.
+     * Returned in {@link TextResult#getProfanitiesResult()} when profanities detection is enabled.
+     */
+    @JsonAdapter(ProfanitiesResultDeserializer.class)
+    public static class ProfanitiesResult {
+        private final ProfanitiesValue target;
+        private final ProfanitiesValue source;
+
+        public ProfanitiesResult(ProfanitiesValue target, ProfanitiesValue source) {
+            this.target = target;
+            this.source = source;
+        }
+
+        /** Profanity detection results for the translated (target) text. */
+        public ProfanitiesValue getTarget() {
+            return target;
+        }
+
+        /** Profanity detection results for the source text. Present only when
+         *  {@code profanities_detect=source_target} was requested. */
+        public ProfanitiesValue getSource() {
+            return source;
+        }
+
+        @Override
+        public String toString() {
+            return "ProfanitiesResult{target=" + target + ", source=" + source + "}";
+        }
+    }
+
+    public static class ProfanitiesResultDeserializer implements JsonDeserializer<ProfanitiesResult> {
+        @Override
+        public ProfanitiesResult deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+            if (!json.isJsonObject()) {
+                throw new JsonParseException("Expected JSON object for profanities");
+            }
+            JsonObject obj = json.getAsJsonObject();
+            ProfanitiesValue target = obj.has("target") && !obj.get("target").isJsonNull()
+                    ? context.deserialize(obj.get("target"), ProfanitiesValue.class)
+                    : null;
+            ProfanitiesValue source = obj.has("source") && !obj.get("source").isJsonNull()
+                    ? context.deserialize(obj.get("source"), ProfanitiesValue.class)
+                    : null;
+            return new ProfanitiesResult(target, source);
         }
     }
 
@@ -283,7 +335,7 @@ public class TextResult {
     private final Value translation;
     private final AdaptedToMatchesValue adaptedToMatches;
     private final GlossariesMatchesValue glossariesMatches;
-    private final ProfanitiesValue profanities;
+    private final ProfanitiesResult profanities;
     private final StyleguideResults styleguideResults;
 
     public TextResult(String contentType, String sourceLanguage, String translation, String[] adaptedTo, String[] glossaries) {
@@ -370,12 +422,20 @@ public class TextResult {
         return glossariesMatches != null ? glossariesMatches.getMatchesList() : null;
     }
 
-    public ProfanityDetectResult getProfanities() {
-        return profanities != null ? profanities.getSingle() : null;
+    public ProfanitiesResult getProfanitiesResult() {
+        return profanities;
     }
 
+    /** Convenience: returns the target profanity result for a single-string translation, or null. */
+    public ProfanityDetectResult getProfanities() {
+        if (profanities == null || profanities.getTarget() == null) return null;
+        return profanities.getTarget().getSingle();
+    }
+
+    /** Convenience: returns the target profanity results for a multi-string translation, or null. */
     public List<ProfanityDetectResult> getProfanitiesList() {
-        return profanities != null ? profanities.getList() : null;
+        if (profanities == null || profanities.getTarget() == null) return null;
+        return profanities.getTarget().getList();
     }
 
     public StyleguideResults getStyleguideResults() {

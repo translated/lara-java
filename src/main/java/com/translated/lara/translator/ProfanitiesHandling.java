@@ -1,6 +1,6 @@
 package com.translated.lara.translator;
 
-public enum ProfanityFilter {
+public enum ProfanitiesHandling {
 
     DETECT("detect"),
     AVOID("avoid"),
@@ -8,7 +8,7 @@ public enum ProfanityFilter {
 
     private final String value;
 
-    ProfanityFilter(String value) {
+    ProfanitiesHandling(String value) {
         this.value = value;
     }
 
@@ -17,7 +17,7 @@ public enum ProfanityFilter {
         return value;
     }
 
-    public static String toString(ProfanityFilter filter) {
-        return filter != null ? filter.toString() : null;
+    public static String toString(ProfanitiesHandling handling) {
+        return handling != null ? handling.toString() : null;
     }
 }
