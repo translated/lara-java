@@ -220,7 +220,7 @@ public class Translator {
             }
         }
 
-        try (Stream<ClientResponse> responseStream = client.postAndGetStream("/translate", params
+        try (Stream<ClientResponse> responseStream = client.postAndGetStream("/v2/translate", params
                 .set("source", source)
                 .set("target", target)
                 .set("q", text)

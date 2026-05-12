@@ -11,6 +11,7 @@ import com.translated.lara.authentication.AccessKey;
 import com.translated.lara.authentication.AuthToken;
 import com.translated.lara.authentication.AuthenticationResponse;
 import com.translated.lara.errors.LaraApiConnectionException;
+import com.translated.lara.errors.LaraApiException;
 import com.translated.lara.errors.LaraException;
 import com.translated.lara.net.json.AudioStatusTypeAdapter;
 import com.translated.lara.net.json.DocumentStatusTypeAdapter;
@@ -189,10 +190,8 @@ public class LaraClient {
                     this.refreshOrReauthenticate();
                     return requestLineStream(method, path, body, headers, true);
                 }
-                if (errorBody != null) {
-                    throw new LaraApiConnectionException("HTTP error code: " + responseCode + ", body: " + errorBody);
-                }
-                throw new LaraApiConnectionException("HTTP error code: " + responseCode);
+
+                throw parseApiError(responseCode, errorBody);
             }
 
             String contentType = connection.getContentType();
@@ -347,10 +346,8 @@ public class LaraClient {
                     this.refreshOrReauthenticate();
                     return requestStream(method, path, body, headers, true);
                 }
-                if (errorBody != null) {
-                    throw new LaraApiConnectionException("HTTP error code: " + responseCode + ", body: " + errorBody);
-                }
-                throw new LaraApiConnectionException("HTTP error code: " + responseCode);
+
+                throw parseApiError(responseCode, errorBody);
             }
 
             return connection.getInputStream();
@@ -516,33 +513,26 @@ public class LaraClient {
         return value == null ? "" : value.trim();
     }
 
-    // Helper method to read the error stream
     private String readErrorStream(HttpURLConnection connection) {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getErrorStream(), StandardCharsets.UTF_8))) {
             return reader.lines().collect(Collectors.joining("\n"));
         } catch (Exception e) {
-            // Likely no error stream available or it failed to read
             return null;
         }
     }
 
-    private TextResult parseTextResult(JsonElement jsonElement) {
+    private LaraException parseApiError(int responseCode, String errorBody) {
         try {
-            return gson.fromJson(jsonElement, TextResult.class);
+            JsonObject error = JsonParser.parseString(errorBody).getAsJsonObject();
+            return new LaraApiException(responseCode, error.get("type").getAsString(), error.get("message").getAsString());
         } catch (Exception e) {
-            throw new RuntimeException("Failed to parse response as TextResult", e);
+            return new LaraApiException(responseCode, "UnknownError", errorBody != null ? errorBody : "HTTP error code: " + responseCode);
         }
     }
 
     private ClientResponse parseStreamLine(String contentType, String line, int responseCode) {
-        JsonObject root = JsonParser.parseString(line).getAsJsonObject();
-
-        int httpStatus = root.has("status") ? root.get("status").getAsInt() : responseCode;
-        JsonElement response = root.has("content")
-                ? root.get("content")
-                : root.has("error") ? root.get("error") : root;
-
-        return new ClientResponse(gson, httpStatus, contentType, response);
+        JsonElement root = JsonParser.parseString(line);
+        return new ClientResponse(gson, responseCode, contentType, root);
     }
 
     private RequestBody buildRequestBody(Map<String, Object> params, Map<String, File> files, boolean includeEmptyBody) {
