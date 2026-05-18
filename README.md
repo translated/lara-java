@@ -11,7 +11,7 @@ All major translation features are accessible, making it easy to integrate and c
 - **Text Translation**: Single strings, multiple strings, and complex text blocks
 - **Document Translation**: Word, PDF, and other document formats with status monitoring
 - **Audio Translation**: Audio files with status monitoring
-- **Translation Memory**: Store and reuse translations for consistency
+- **Translation Memory**: Store and reuse translations for consistency, with async import/export
 - **Glossaries**: Enforce terminology standards across translations
 - **Styleguides**: Apply custom translation style rules with detailed change reasoning
 - **Language Detection**: Automatic source language identification
@@ -136,6 +136,8 @@ java -cp .:../target/classes:../target/dependency/* AudioTranslation
   - Add individual translations
   - Multiple memory operations
   - TMX file import with progress monitoring
+  - Async TMX import with callback URL
+  - Async memory export with callback URL
   - Translation deletion
   - Translation with TUID and context
 
@@ -373,6 +375,15 @@ MemoryImport deleteJob = lara.memories.deleteTranslation(
 
 // Wait for import completion (timeout in MILLISECONDS)
 MemoryImport completedImport = lara.memories.waitForImport(memoryImport, 300000L); // 5 minutes
+
+// TMX import with callback URL (async notification instead of polling)
+MemoryImport asyncImport = lara.memories.importTmx("mem_1A2b3C4d5E6f7G8h9I0jKl", tmxFile, "https://your-server.example.com/callback");
+
+// Async memory export — result delivered to callback URL
+MemoryExport exportJob = lara.memories.exportAsync("mem_1A2b3C4d5E6f7G8h9I0jKl", "https://your-server.example.com/callback");
+
+// Async export with specific format
+MemoryExport exportTmxJob = lara.memories.exportAsync("mem_1A2b3C4d5E6f7G8h9I0jKl", "https://your-server.example.com/callback", Memory.ExportFormat.TMX);
 ```
 
 ### 📚 Glossary Management

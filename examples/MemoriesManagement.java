@@ -14,6 +14,8 @@ import java.util.List;
  * - Add individual translations
  * - Multiple memory operations
  * - TMX file import with progress monitoring
+ * - TMX import with callback URL (async notification)
+ * - Async memory export with callback URL
  * - Translation deletion
  * - Translation with TUID and context
  */
@@ -124,7 +126,41 @@ public class MemoriesManagement {
                 System.out.println("TMX file not found: " + tmxFilePath);
             }
 
-            // Example 5: Translation deletion
+            // Example 5: Async TMX import with callback URL
+            System.out.println("=== Async TMX Import with Callback URL ===");
+            if (tmxFile.exists()) {
+                try {
+                    String importCallbackUrl = "https://your-server.example.com/callbacks/memory-import";
+                    MemoryImport asyncImport = lara.memories.importTmx(memoryId, tmxFile, importCallbackUrl);
+                    System.out.println("✅ Async import started (ID: " + asyncImport.getId() + ")");
+                    System.out.println("   Callback will be sent to: " + importCallbackUrl);
+                    System.out.println();
+                } catch (LaraException e) {
+                    System.out.println("Error with async TMX import: " + e.getMessage() + "\n");
+                }
+            } else {
+                System.out.println("TMX file not found, skipping async import example.\n");
+            }
+
+            // Example 6: Async memory export
+            System.out.println("=== Async Memory Export ===");
+            try {
+                String exportCallbackUrl = "https://your-server.example.com/callbacks/memory-export";
+
+                // Export with default format
+                MemoryExport exportJob = lara.memories.exportAsync(memoryId, exportCallbackUrl);
+                System.out.println("✅ Export triggered (job_id: " + exportJob.getJobId() + ")");
+                System.out.println("   Callback will be sent to: " + exportCallbackUrl);
+
+                // Export with specific format
+                MemoryExport exportTmxJob = lara.memories.exportAsync(memoryId, exportCallbackUrl, Memory.ExportFormat.TMX);
+                System.out.println("✅ TMX export triggered (job_id: " + exportTmxJob.getJobId() + ")");
+                System.out.println();
+            } catch (LaraException e) {
+                System.out.println("Error with async export: " + e.getMessage() + "\n");
+            }
+
+            // Example 7: Translation deletion
             System.out.println("=== Translation Deletion ===");
             try {
                 // Delete a specific translation unit (with TUID)

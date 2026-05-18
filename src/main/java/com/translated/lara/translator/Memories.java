@@ -1,17 +1,17 @@
 package com.translated.lara.translator;
 
-import com.translated.lara.errors.LaraApiException;
-import com.translated.lara.errors.LaraException;
-import com.translated.lara.errors.TimeoutException;
-import com.translated.lara.net.HttpParams;
-import com.translated.lara.net.LaraClient;
-
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+
+import com.translated.lara.errors.LaraApiException;
+import com.translated.lara.errors.LaraException;
+import com.translated.lara.errors.TimeoutException;
+import com.translated.lara.net.HttpParams;
+import com.translated.lara.net.LaraClient;
 
 public class Memories {
 
@@ -86,15 +86,39 @@ public class Memories {
         return importTmx(id, tmx, tmx.getName().toLowerCase().endsWith(".gz"));
     }
 
+    public MemoryImport importTmx(String id, File tmx, String callbackUrl) throws LaraException {
+        return importTmx(id, tmx, tmx.getName().toLowerCase().endsWith(".gz"), callbackUrl);
+    }
+
     public MemoryImport importTmx(String id, File tmx, boolean gzip) throws LaraException {
+        return importTmx(id, tmx, gzip, null);
+    }
+
+    public MemoryImport importTmx(String id, File tmx, boolean gzip, String callbackUrl) throws LaraException {
         Map<String, Object> params = new HttpParams<>()
                 .set("compression", gzip ? "gzip" : null)
+                .set("callback_url", callbackUrl)
                 .build();
         Map<String, File> files = new HttpParams<File>()
                 .set("tmx", tmx)
                 .build();
 
         return client.post("/v2/memories/" + id + "/import", params, files, null).as(MemoryImport.class);
+    }
+
+    public MemoryExport exportAsync(String id, String callbackUrl) throws LaraException {
+        return exportAsync(id, callbackUrl, null);
+    }
+
+    public MemoryExport exportAsync(String id, String callbackUrl, Memory.ExportFormat format) throws LaraException {
+        String endpoint = "/v2/memories/" + id + "/export/async";
+        HttpParams<Object> params = new HttpParams<>()
+                .set("format", format != null ? format.toString() : null)
+                .set("callback_url", callbackUrl);
+        if (params.build() != null) {
+            endpoint += "?" + params.toQueryString();
+        }
+        return client.get(endpoint).as(MemoryExport.class);
     }
 
     public MemoryImport addTranslation(String id, String source, String target, String sentence, String translation) throws LaraException {

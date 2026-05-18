@@ -5,6 +5,22 @@ import java.util.Objects;
 
 public class Memory {
 
+    public enum ExportFormat {
+        TMX("tmx"),
+        JTM("jtm");
+
+        private final String value;
+
+        ExportFormat(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return value;
+        }
+    }
+
     private final String id;
     private final Date createdAt;
     private final Date updatedAt;
