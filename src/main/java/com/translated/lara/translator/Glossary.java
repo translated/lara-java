@@ -26,13 +26,15 @@ public class Glossary {
     private final Date updatedAt;
     private final String name;
     private final String ownerId;
+    private final Boolean isPersonal;
 
-    public Glossary(String id, Date createdAt, Date updatedAt, String name, String ownerId) {
+    public Glossary(String id, Date createdAt, Date updatedAt, String name, String ownerId, Boolean isPersonal) {
         this.id = id;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.name = name;
         this.ownerId = ownerId;
+        this.isPersonal = isPersonal;
     }
 
     public String getId() {
@@ -53,6 +55,10 @@ public class Glossary {
 
     public String getOwnerId() {
         return ownerId;
+    }
+
+    public Boolean getIsPersonal() {
+        return isPersonal;
     }
 
     @Override

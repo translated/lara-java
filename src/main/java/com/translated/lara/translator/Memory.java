@@ -30,8 +30,9 @@ public class Memory {
     private final String secret;
     private final String ownerId;
     private final int collaboratorsCount;
+    private final Boolean isPersonal;
 
-    public Memory(String id, Date createdAt, Date updatedAt, Date sharedAt, String name, String externalId, String secret, String ownerId, int collaboratorsCount) {
+    public Memory(String id, Date createdAt, Date updatedAt, Date sharedAt, String name, String externalId, String secret, String ownerId, int collaboratorsCount, Boolean isPersonal) {
         this.id = id;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
@@ -41,6 +42,7 @@ public class Memory {
         this.secret = secret;
         this.ownerId = ownerId;
         this.collaboratorsCount = collaboratorsCount;
+        this.isPersonal = isPersonal;
     }
 
     public String getId() {
@@ -77,6 +79,10 @@ public class Memory {
 
     public int getCollaboratorsCount() {
         return collaboratorsCount;
+    }
+
+    public Boolean getIsPersonal() {
+        return isPersonal;
     }
 
     @Override

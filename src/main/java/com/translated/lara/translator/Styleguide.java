@@ -11,14 +11,16 @@ public class Styleguide {
     private final String ownerId;
     private final Date createdAt;
     private final Date updatedAt;
+    private final Boolean isPersonal;
 
-    public Styleguide(String id, String name, String content, String ownerId, Date createdAt, Date updatedAt) {
+    public Styleguide(String id, String name, String content, String ownerId, Date createdAt, Date updatedAt, Boolean isPersonal) {
         this.id = id;
         this.name = name;
         this.content = content;
         this.ownerId = ownerId;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
+        this.isPersonal = isPersonal;
     }
 
     public String getId() {
@@ -43,6 +45,10 @@ public class Styleguide {
 
     public Date getUpdatedAt() {
         return updatedAt;
+    }
+
+    public Boolean getIsPersonal() {
+        return isPersonal;
     }
 
     @Override
