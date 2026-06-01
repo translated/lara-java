@@ -11,6 +11,7 @@ public class ImageTranslateOptions {
     private String[] glossaries = null;
     private Boolean noTrace = null;
     private TranslationStyle style = null;
+    private ImageTranslationModel model = null;
     private ImageTextRemoval textRemoval = null;
 
     /**
@@ -118,10 +119,32 @@ public class ImageTranslateOptions {
 
 
     /**
+     * Gets the image translation model to apply.
+     *
+     * @return the translation model, or {@code null} if not set
+     */
+    public ImageTranslationModel getModel() {
+        return model;
+    }
+
+    /**
+     * Sets the image translation model to apply.
+     *
+     * @param model the translation model
+     * @return this options instance for chaining
+     */
+    public ImageTranslateOptions setModel(ImageTranslationModel model) {
+        this.model = model;
+        return this;
+    }
+
+    /**
      * Gets the text removal strategy to apply to the input image.
      *
      * @return the text removal strategy, or {@code null} if not set
+     * @deprecated Use {@link #getModel()} instead.
      */
+    @Deprecated
     public ImageTextRemoval getTextRemoval() {
         return textRemoval;
     }
@@ -131,7 +154,9 @@ public class ImageTranslateOptions {
      *
      * @param textRemoval the text removal strategy
      * @return this options instance for chaining
+     * @deprecated Use {@link #setModel(ImageTranslationModel)} instead.
      */
+    @Deprecated
     public ImageTranslateOptions setTextRemoval(ImageTextRemoval textRemoval) {
         this.textRemoval = textRemoval;
         return this;
@@ -147,7 +172,11 @@ public class ImageTranslateOptions {
         params.set("adapt_to", adaptTo);
         params.set("glossaries", glossaries);
         params.set("style", TranslationStyle.toString(style));
-        params.set("text_removal", ImageTextRemoval.toString(textRemoval));
+        String modelValue = ImageTranslationModel.toString(model);
+        if (modelValue == null) {
+            modelValue = ImageTextRemoval.toString(textRemoval);
+        }
+        params.set("model", modelValue);
         return params;
     }
 }

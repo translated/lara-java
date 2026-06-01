@@ -47,7 +47,10 @@ public class ImageTranslation {
         System.out.println("Translating image: " + sampleImage.getName() + " to " + targetLang);
 
         try {
-            InputStream imageStream = lara.images.translate(sampleImage, targetLang);
+            ImageTranslateOptions translateOptions = new ImageTranslateOptions()
+                .setModel(ImageTranslationModel.OVERLAY);
+
+            InputStream imageStream = lara.images.translate(sampleImage, targetLang, translateOptions);
 
             // Save translated image - replace with your desired output path
             String outputPath = "sample_image_translated.png";
@@ -70,6 +73,7 @@ public class ImageTranslation {
                 .setAdaptTo("mem_1A2b3C4d5E6f7G8h9I0jKl")  // Replace with actual memory IDs
                 .setGlossaries("gls_1A2b3C4d5E6f7G8h9I0jKl")  // Replace with actual glossary IDs
                 .setStyle(TranslationStyle.FLUID)
+                .setModel(ImageTranslationModel.INPAINTING)
                 .setNoTrace(false);
 
             InputStream imageStream = lara.images.translate(sampleImage, sourceLang, "fr-FR", options);

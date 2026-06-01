@@ -306,6 +306,26 @@ String status = lara.documents.status(document.getId());
 InputStream fileStream = lara.documents.download(document.getId());
 ```
 
+### 🖼️ Image Translation
+
+```java
+File image = new File("/path/to/your/image.png"); // Replace with actual file path
+
+// Translate image and receive a translated image stream
+ImageTranslateOptions options = new ImageTranslateOptions()
+    .setModel(ImageTranslationModel.INPAINTING)
+    .setStyle(TranslationStyle.FAITHFUL);
+
+InputStream translatedImageStream = lara.images.translate(image, "en", "fr", options);
+
+// Extract and translate text blocks from an image
+ImageTextTranslateOptions textOptions = new ImageTextTranslateOptions()
+    .setAdaptTo("mem_1A2b3C4d5E6f7G8h9I0jKl")  // Replace with actual memory IDs
+    .setGlossaries("gls_1A2b3C4d5E6f7G8h9I0jKl");  // Replace with actual glossary IDs
+
+ImageTextResult textBlocks = lara.images.translateText(image, "en", "fr", textOptions);
+```
+
 ### 🎵 Audio Translation
 #### Simple audio translation
 ```java

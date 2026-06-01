@@ -1,5 +1,9 @@
 package com.translated.lara.translator;
 
+/**
+ * @deprecated Use {@link ImageTranslationModel} instead.
+ */
+@Deprecated
 public enum ImageTextRemoval {
     OVERLAY("overlay"),
     INPAINTING("inpainting");
