@@ -161,6 +161,19 @@ javac -cp ../target/classes:../target/dependency/* GlossariesManagement.java
 java -cp .:../target/classes:../target/dependency/* GlossariesManagement
 ```
 
+### Styleguide Management
+- **[StyleguidesManagement.java](examples/StyleguidesManagement.java)** - Styleguide CRUD examples
+  - Create, list, get, update, delete styleguides
+
+```bash
+cd examples
+export LARA_ACCESS_KEY_ID="your-access-key-id"
+export LARA_ACCESS_KEY_SECRET="your-access-key-secret"
+
+javac -cp ../target/classes:../target/dependency/* StyleguidesManagement.java
+java -cp .:../target/classes:../target/dependency/* StyleguidesManagement
+```
+
 ## 🔧 API Reference
 
 ### Core Components
@@ -442,7 +455,7 @@ GlossaryCounts counts = lara.glossaries.counts("gls_1A2b3C4d5E6f7G8h9I0jKl");
 
 ### 🎨 Styleguides
 
-Styleguides let you apply custom translation style rules. They can be listed and retrieved through the SDK.
+Styleguides let you apply custom translation style rules. They can be created, listed, retrieved, updated, and deleted through the SDK.
 
 ```java
 // List all styleguides
@@ -450,6 +463,17 @@ List<Styleguide> styleguides = lara.styleguides.list();
 
 // Get a specific styleguide by ID
 Styleguide styleguide = lara.styleguides.get("stg_1A2b3C4d5E6f7G8h9I0jKl");
+
+// Create a styleguide
+Styleguide created = lara.styleguides.create("Formal EN", "Use formal register. Avoid contractions.");
+
+// Update: pass null for fields to leave unchanged
+Styleguide renamed = lara.styleguides.update(created.getId(), "Formal EN v2");
+Styleguide contentUpdated = lara.styleguides.update(created.getId(), null, "Prefer active voice.");
+Styleguide updated = lara.styleguides.update(created.getId(), "Formal EN v3", "Prefer active voice.");
+
+// Delete a styleguide
+Styleguide deleted = lara.styleguides.delete(created.getId());
 ```
 
 #### Translate with a styleguide
