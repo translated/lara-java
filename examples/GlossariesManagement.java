@@ -16,7 +16,7 @@ import java.util.Map;
  * - Create, list, update, delete glossaries
  * - Individual term management (add/remove terms)
  * - CSV import with status monitoring
- * - Glossary export
+ * - Glossary export (sync and async)
  * - Glossary terms count
  * - Import status checking
  */
@@ -112,14 +112,31 @@ public class GlossariesManagement {
                     System.out.println("Import timeout: The import process took too long to complete.");
                 }
                 System.out.println();
-                
-                // Clean up sample file
-                csvFile.delete();
             } else {
                 System.out.println("CSV file not found: " + csvFilePath);
             }
 
-            // Example 5: Export functionality
+            // Example 5: CSV import with a callback URL (async notification when import completes)
+            System.out.println("=== CSV Import with Callback URL ===");
+            if (csvFile != null && csvFile.exists()) {
+                try {
+                    String callbackUrl = "https://your-server.example.com/lara/import-callback"; // Replace with your endpoint
+                    GlossaryImport importWithCallback = lara.glossaries.importCsv(glossaryId, csvFile, callbackUrl);
+                    System.out.println("Import started with ID: " + importWithCallback.getId() + " (callback: " + callbackUrl + ")");
+
+                    // You can also combine a content type + gzip + callbackUrl:
+                    // lara.glossaries.importCsv(glossaryId, csvFile, Glossary.Type.CSV_TABLE_UNI, callbackUrl);
+                    // lara.glossaries.importCsv(glossaryId, csvFile, Glossary.Type.CSV_TABLE_UNI, true, callbackUrl);
+                    System.out.println();
+                } catch (LaraException e) {
+                    System.out.println("Error starting CSV import with callback: " + e.getMessage() + "\n");
+                }
+
+                // Clean up sample file
+                csvFile.delete();
+            }
+
+            // Example 6: Export functionality
             System.out.println("=== Export Functionality ===");
             try {
                 // Export as CSV table unidirectional format
@@ -131,12 +148,22 @@ public class GlossariesManagement {
                 String exportFilePath = "exported_glossary.csv";  // Replace with actual path
                 saveToFile(csvUniData.getBytes(), exportFilePath);
                 System.out.println("💾 Sample export saved to: " + exportFilePath);
+
+                // Async export - returns a jobId; the result is delivered to your callback URL when ready
+                System.out.println("📤 Starting async export...");
+                GlossaryExport exportJob = lara.glossaries.exportAsync(
+                        glossaryId,
+                        "https://your-server.example.com/lara/export-callback",  // Replace with your actual callback URL
+                        Glossary.Type.CSV_TABLE_UNI,
+                        "en-US");
+                System.out.println("✅ Async export started (job ID: " + exportJob.getJobId() + ")");
+                System.out.println("   The export result will be delivered to your callback URL when ready.");
                 System.out.println();
             } catch (LaraException | IOException e) {
                 System.out.println("Error with export: " + e.getMessage() + "\n");
             }
 
-            // Example 6: Glossary Terms Count
+            // Example 7: Glossary Terms Count
             System.out.println("=== Glossary Terms Count ===");
             try {
                 // Get detailed counts
@@ -218,4 +245,4 @@ public class GlossariesManagement {
             fos.write(data);
         }
     }
-} 
+}

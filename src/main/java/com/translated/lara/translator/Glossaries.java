@@ -62,6 +62,10 @@ public class Glossaries {
         return importCsv(id, csv, Glossary.Type.CSV_TABLE_UNI);
     }
 
+    public GlossaryImport importCsv(String id, File csv, String callbackUrl) throws LaraException {
+        return importCsv(id, csv, Glossary.Type.CSV_TABLE_UNI, csv.getName().toLowerCase().endsWith(".gz"), callbackUrl);
+    }
+
     public GlossaryImport importCsv(String id, File csv, boolean gzip) throws LaraException {
         return importCsv(id, csv, Glossary.Type.CSV_TABLE_UNI, gzip);
     }
@@ -70,10 +74,19 @@ public class Glossaries {
         return importCsv(id, csv, contentType, csv.getName().toLowerCase().endsWith(".gz"));
     }
 
+    public GlossaryImport importCsv(String id, File csv, Glossary.Type contentType, String callbackUrl) throws LaraException {
+        return importCsv(id, csv, contentType, csv.getName().toLowerCase().endsWith(".gz"), callbackUrl);
+    }
+
     public GlossaryImport importCsv(String id, File csv, Glossary.Type contentType, boolean gzip) throws LaraException {
+        return importCsv(id, csv, contentType, gzip, null);
+    }
+
+    public GlossaryImport importCsv(String id, File csv, Glossary.Type contentType, boolean gzip, String callbackUrl) throws LaraException {
         Map<String, Object> params = new HttpParams<>()
                 .set("compression", gzip ? "gzip" : null)
                 .set("content_type", contentType.toString())
+                .set("callback_url", callbackUrl)
                 .build();
         Map<String, File> files = new HttpParams<File>()
                 .set("csv", csv)
@@ -125,6 +138,22 @@ public class Glossaries {
             params.set("source", source);
         }
         return client.get("/v2/glossaries/" + id + "/export?" + params.toQueryString()).toString();
+    }
+
+    public GlossaryExport exportAsync(String id, String callbackUrl, Glossary.Type contentType) throws LaraException {
+        return exportAsync(id, callbackUrl, contentType, null);
+    }
+
+    public GlossaryExport exportAsync(String id, String callbackUrl, Glossary.Type contentType, String source) throws LaraException {
+        String endpoint = "/v2/glossaries/" + id + "/export/async";
+        HttpParams<Object> params = new HttpParams<>()
+                .set("content_type", contentType.toString())
+                .set("callback_url", callbackUrl)
+                .set("source", source);
+        if (params.build() != null) {
+            endpoint += "?" + params.toQueryString();
+        }
+        return client.get(endpoint).as(GlossaryExport.class);
     }
 
     public GlossaryCounts counts(String id) throws LaraException {

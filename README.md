@@ -151,7 +151,7 @@ java -cp .:../target/classes:../target/dependency/* MemoriesManagement
 - **[GlossariesManagement.java](examples/GlossariesManagement.java)** - Glossary management examples
   - Create, list, update, delete glossaries
   - CSV import with status monitoring
-  - Glossary export
+  - Glossary export (sync and async)
   - Glossary terms count
   - Import status checking
 
@@ -448,6 +448,13 @@ GlossaryImport completedImport = lara.glossaries.waitForImport(glossaryImport, 3
 
 // Export glossary
 String csvData = lara.glossaries.export("gls_1A2b3C4d5E6f7G8h9I0jKl", Glossary.Type.CSV_TABLE_UNI, "en-US");
+
+// Async glossary export — returns a jobId; the result is delivered to your callback URL when ready
+GlossaryExport exportJob = lara.glossaries.exportAsync(
+        "gls_1A2b3C4d5E6f7G8h9I0jKl",
+        "https://your-server.example.com/lara/export-callback",
+        Glossary.Type.CSV_TABLE_UNI,
+        "en-US");
 
 // Get glossary terms count
 GlossaryCounts counts = lara.glossaries.counts("gls_1A2b3C4d5E6f7G8h9I0jKl");
