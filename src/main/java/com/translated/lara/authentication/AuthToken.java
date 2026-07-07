@@ -12,7 +12,7 @@ public class AuthToken {
 
     public AuthToken(String token, String refreshToken) {
         this.token = token;
-        this.refreshToken = refreshToken;
+        this.refreshToken = (refreshToken == null || refreshToken.isEmpty()) ? null : refreshToken;
         this.expiresAtMs = parseExpiresAtMs(token);
     }
 

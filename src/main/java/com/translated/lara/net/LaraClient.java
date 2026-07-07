@@ -358,8 +358,7 @@ public class LaraClient {
     }
 
     private void refreshOrReauthenticate() throws LaraException {
-        if (this.authToken != null && this.authToken.getRefreshToken() != null
-                && !this.authToken.getRefreshToken().isEmpty()) {
+        if (this.authToken != null && this.authToken.getRefreshToken() != null) {
             try {
                 this.refreshToken();
                 return;
@@ -411,9 +410,6 @@ public class LaraClient {
             }
 
             String refreshToken = connection.getHeaderField("x-lara-refresh-token");
-            if (refreshToken == null || refreshToken.isEmpty()) {
-                throw new LaraApiConnectionException("Missing refresh token in authentication response");
-            }
             return new AuthToken(authResponse.getToken(), refreshToken);
 
         } catch(IOException e) {
@@ -441,12 +437,12 @@ public class LaraClient {
             if (authResponse == null || authResponse.getToken() == null || authResponse.getToken().isEmpty()) {
                 throw new LaraApiConnectionException("Missing access token in refresh response: " + response.toString());
             }
-
             String refreshToken = connection.getHeaderField("x-lara-refresh-token");
             if (refreshToken == null || refreshToken.isEmpty()) {
-                throw new LaraApiConnectionException("Missing refresh token in refresh response");
+                refreshToken = null;
             }
             this.authToken = new AuthToken(authResponse.getToken(), refreshToken);
+
         } catch (IOException e) {
             throw new LaraApiConnectionException("Failed to connect to URL: " + baseUrl, e);
         } finally {
