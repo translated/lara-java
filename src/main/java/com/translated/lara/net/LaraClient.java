@@ -44,6 +44,7 @@ public class LaraClient {
     private final Map<String, String> extraHeaders  = new HashMap<>();
     private final int connectionTimeout;
     private final int readTimeout;
+    private final String sessionId;
 
     private final Gson gson = new GsonBuilder()
             .registerTypeAdapter(TextResult.Value.class, new TextResultValueTypeAdapter())
@@ -62,6 +63,7 @@ public class LaraClient {
         this.baseUrl = options.getServerUrl();
         this.connectionTimeout = (int) options.getConnectionTimeoutMs();
         this.readTimeout = (int) options.getReadTimeoutMs();
+        this.sessionId = options.getSessionId();
         this.accessKey = accessKey;
     }
 
@@ -69,6 +71,7 @@ public class LaraClient {
         this.baseUrl = options.getServerUrl();
         this.connectionTimeout = (int) options.getConnectionTimeoutMs();
         this.readTimeout = (int) options.getReadTimeoutMs();
+        this.sessionId = options.getSessionId();
         this.authToken = authToken;
     }
 
@@ -394,6 +397,11 @@ public class LaraClient {
         connection.setRequestProperty("Content-MD5", contentMd5);
         connection.setRequestProperty("Content-Type", contentType);
         connection.setRequestProperty("Authorization", "Lara:" + sign(method, path, accessKey.getSecret(), connection));
+
+        if (sessionId != null && !sessionId.isEmpty()) {
+            connection.setRequestProperty("X-Lara-Auth-Session-Id", sessionId);
+        }
+
         connection.setDoOutput(true);
 
         try {

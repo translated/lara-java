@@ -7,6 +7,7 @@ public class ClientOptions {
     private String serverUrl = null;
     private long connectionTimeoutMs = 0;
     private long readTimeoutMs = 0;
+    private String sessionId = null;
 
     public String getServerUrl() {
         return serverUrl == null ? DEFAULT_SERVER_URL : serverUrl;
@@ -38,6 +39,15 @@ public class ClientOptions {
 
     public ClientOptions setReadTimeoutMs(long readTimeoutMs) {
         this.readTimeoutMs = readTimeoutMs;
+        return this;
+    }
+
+    public String getSessionId() {
+        return sessionId;
+    }
+
+    public ClientOptions setSessionId(String sessionId) {
+        this.sessionId = sessionId;
         return this;
     }
 
