@@ -15,6 +15,7 @@ public class AudioOptions {
     private String[] glossaries = null;
     private Boolean noTrace = null;
     private TranslationStyle style = null;
+    private Boolean voiceCloning = null;
     private VoiceGender voiceGender = null;
 
     /**
@@ -113,6 +114,24 @@ public class AudioOptions {
     }
 
     /**
+     * Returns whether the source speaker's voice should be cloned for the translated audio.
+     */
+    public Boolean getVoiceCloning() {
+        return voiceCloning;
+    }
+
+    /**
+     * Enables or disables voice cloning for the translated audio.
+     *
+     * @param voiceCloning whether to clone the source speaker's voice; may be {@code null}
+     * @return this {@code AudioOptions} instance for method chaining
+     */
+    public AudioOptions setVoiceCloning(Boolean voiceCloning) {
+        this.voiceCloning = voiceCloning;
+        return this;
+    }
+
+    /**
      * Returns the voice gender for the translated audio synthesis.
      */
     public VoiceGender getVoiceGender() {
@@ -141,6 +160,7 @@ public class AudioOptions {
         params.set("adapt_to", adaptTo);
         params.set("glossaries", glossaries);
         params.set("style", TranslationStyle.toString(style));
+        params.set("voice_cloning", voiceCloning);
         params.set("voice_gender", VoiceGender.toString(voiceGender));
 
         return params;
