@@ -19,6 +19,7 @@ import java.util.Map;
  * - Glossary export (sync and async)
  * - Glossary terms count
  * - Import status checking
+ * - Sharing a glossary with the account or a group (add, rename, list, revoke)
  */
 public class GlossariesManagement {
     
@@ -186,6 +187,55 @@ public class GlossariesManagement {
                 System.out.println();
             } catch (LaraException e) {
                 System.out.println("Error getting terms count: " + e.getMessage() + "\n");
+            }
+
+            // Example 8: Glossary sharing
+            // Sharing requires a multi-user account and the appropriate role (account owner for
+            // account-wide shares, owner/admin for group shares). Each call returns the shared
+            // glossary, whose name reflects the shared copy's name and sharedAt the share time.
+            System.out.println("=== Glossary Sharing ===");
+            try {
+                // Share with the whole account/team (the optional argument names the shared copy)
+                Glossary teamShare = lara.glossaries.addAccountShare(glossaryId, "Shared with the team");
+                System.out.println("🤝 Shared with the account as: '" + teamShare.getName() + "' (shared at " + teamShare.getSharedAt() + ")");
+
+                // Rename the account/team share
+                Glossary renamedTeamShare = lara.glossaries.renameAccountShare(glossaryId, "Team glossary");
+                System.out.println("📝 Renamed account share to: '" + renamedTeamShare.getName() + "'");
+
+                // List every share visible to the caller: the account share, group shares and user shares
+                GlossaryShares shares = lara.glossaries.getShares(glossaryId);
+                if (shares.getAccount() != null) {
+                    System.out.println("👥 Account share '" + shares.getAccount().getShareName() + "' (" + shares.getAccount().getPermissions() + ")");
+                }
+                for (ResourceShareEntry group : shares.getGroups()) {
+                    System.out.println("👥 Group " + group.getName() + ": '" + group.getShareName() + "' (" + group.getPermissions() + ")");
+                }
+                for (ResourceShareEntry user : shares.getUsers()) {
+                    System.out.println("👤 User " + user.getName() + ": '" + user.getShareName() + "' (" + user.getPermissions() + ")");
+                }
+
+                // Revoke the account/team share
+                lara.glossaries.revokeAccountShare(glossaryId);
+                System.out.println("🚫 Revoked the account share");
+
+                // Group shares work the same way, addressed by a group ID (grp_...)
+                String groupId = System.getenv("LARA_GROUP_ID"); // Replace with an actual group ID
+                if (groupId != null) {
+                    Glossary groupShare = lara.glossaries.addGroupShare(glossaryId, groupId, "Shared with the group");
+                    System.out.println("🤝 Shared with group " + groupId + " as: '" + groupShare.getName() + "'");
+
+                    lara.glossaries.renameGroupShare(glossaryId, groupId, "Marketing group");
+                    System.out.println("📝 Renamed the group share");
+
+                    lara.glossaries.revokeGroupShare(glossaryId, groupId);
+                    System.out.println("🚫 Revoked the group share");
+                } else {
+                    System.out.println("Set LARA_GROUP_ID to try the group sharing methods.");
+                }
+                System.out.println();
+            } catch (LaraException e) {
+                System.out.println("Error sharing glossary: " + e.getMessage() + "\n");
             }
 
         } catch (LaraException e) {

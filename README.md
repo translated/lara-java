@@ -417,6 +417,14 @@ MemoryExport exportJob = lara.memories.exportAsync("mem_1A2b3C4d5E6f7G8h9I0jKl",
 
 // Async export with specific format
 MemoryExport exportTmxJob = lara.memories.exportAsync("mem_1A2b3C4d5E6f7G8h9I0jKl", "https://your-server.example.com/callback", Memory.ExportFormat.TMX);
+
+// Share with the account or a group; shares can be renamed, listed, and revoked
+lara.memories.addAccountShare(memory.getId(), "Team memory");
+lara.memories.renameAccountShare(memory.getId(), "Company memory");
+lara.memories.addGroupShare(memory.getId(), "grp_1A2b3C4d5E6f7G8h9I0jKl", "Marketing memory");
+MemoryShares shares = lara.memories.getShares(memory.getId());
+lara.memories.revokeGroupShare(memory.getId(), "grp_1A2b3C4d5E6f7G8h9I0jKl");
+lara.memories.revokeAccountShare(memory.getId());
 ```
 
 ### 📚 Glossary Management
@@ -458,6 +466,13 @@ GlossaryExport exportJob = lara.glossaries.exportAsync(
 
 // Get glossary terms count
 GlossaryCounts counts = lara.glossaries.counts("gls_1A2b3C4d5E6f7G8h9I0jKl");
+
+// Glossaries support the same account and group sharing workflow
+lara.glossaries.addAccountShare(glossary.getId(), "Team glossary");
+lara.glossaries.addGroupShare(glossary.getId(), "grp_1A2b3C4d5E6f7G8h9I0jKl", "Marketing glossary");
+GlossaryShares glossaryShares = lara.glossaries.getShares(glossary.getId());
+lara.glossaries.revokeGroupShare(glossary.getId(), "grp_1A2b3C4d5E6f7G8h9I0jKl");
+lara.glossaries.revokeAccountShare(glossary.getId());
 ```
 
 ### 🎨 Styleguides
@@ -478,6 +493,10 @@ Styleguide created = lara.styleguides.create("Formal EN", "Use formal register. 
 Styleguide renamed = lara.styleguides.update(created.getId(), "Formal EN v2");
 Styleguide contentUpdated = lara.styleguides.update(created.getId(), null, "Prefer active voice.");
 Styleguide updated = lara.styleguides.update(created.getId(), "Formal EN v3", "Prefer active voice.");
+
+// Share a styleguide and inspect visible account, group, and user shares
+lara.styleguides.addGroupShare(created.getId(), "grp_1A2b3C4d5E6f7G8h9I0jKl", "Marketing styleguide");
+StyleguideShares styleguideShares = lara.styleguides.getShares(created.getId());
 
 // Delete a styleguide
 Styleguide deleted = lara.styleguides.delete(created.getId());

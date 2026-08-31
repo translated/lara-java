@@ -58,6 +58,42 @@ public class Glossaries {
         ).as(Glossary.class);
     }
 
+    public GlossaryShares getShares(String id) throws LaraException {
+        return client.get("/v2/glossaries/" + id + "/shares").as(GlossaryShares.class);
+    }
+
+    public Glossary addAccountShare(String id) throws LaraException { return addAccountShare(id, null); }
+
+    public Glossary addAccountShare(String id, String name) throws LaraException {
+        return client.post("/v2/glossaries/" + id + "/shares", shareName(name)).as(Glossary.class);
+    }
+
+    public Glossary renameAccountShare(String id, String name) throws LaraException {
+        return client.put("/v2/glossaries/" + id + "/shares", shareName(name)).as(Glossary.class);
+    }
+
+    public Glossary revokeAccountShare(String id) throws LaraException {
+        return client.delete("/v2/glossaries/" + id + "/shares").as(Glossary.class);
+    }
+
+    public Glossary addGroupShare(String id, String groupId) throws LaraException { return addGroupShare(id, groupId, null); }
+
+    public Glossary addGroupShare(String id, String groupId, String name) throws LaraException {
+        return client.post("/v2/glossaries/" + id + "/shares/groups/" + groupId, shareName(name)).as(Glossary.class);
+    }
+
+    public Glossary renameGroupShare(String id, String groupId, String name) throws LaraException {
+        return client.put("/v2/glossaries/" + id + "/shares/groups/" + groupId, shareName(name)).as(Glossary.class);
+    }
+
+    public Glossary revokeGroupShare(String id, String groupId) throws LaraException {
+        return client.delete("/v2/glossaries/" + id + "/shares/groups/" + groupId).as(Glossary.class);
+    }
+
+    private Map<String, Object> shareName(String name) {
+        return new HttpParams<>().set("name", name).build();
+    }
+
     public GlossaryImport importCsv(String id, File csv) throws LaraException {
         return importCsv(id, csv, Glossary.Type.CSV_TABLE_UNI);
     }

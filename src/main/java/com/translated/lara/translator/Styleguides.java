@@ -6,6 +6,7 @@ import com.translated.lara.net.HttpParams;
 import com.translated.lara.net.LaraClient;
 
 import java.util.List;
+import java.util.Map;
 
 public class Styleguides {
     private final LaraClient client;
@@ -58,5 +59,41 @@ public class Styleguides {
 
     public Styleguide delete(String id) throws LaraException {
         return client.delete("/v2/styleguides/" + id).as(Styleguide.class);
+    }
+
+    public StyleguideShares getShares(String id) throws LaraException {
+        return client.get("/v2/styleguides/" + id + "/shares").as(StyleguideShares.class);
+    }
+
+    public Styleguide addAccountShare(String id) throws LaraException { return addAccountShare(id, null); }
+
+    public Styleguide addAccountShare(String id, String name) throws LaraException {
+        return client.post("/v2/styleguides/" + id + "/shares", shareName(name)).as(Styleguide.class);
+    }
+
+    public Styleguide renameAccountShare(String id, String name) throws LaraException {
+        return client.put("/v2/styleguides/" + id + "/shares", shareName(name)).as(Styleguide.class);
+    }
+
+    public Styleguide revokeAccountShare(String id) throws LaraException {
+        return client.delete("/v2/styleguides/" + id + "/shares").as(Styleguide.class);
+    }
+
+    public Styleguide addGroupShare(String id, String groupId) throws LaraException { return addGroupShare(id, groupId, null); }
+
+    public Styleguide addGroupShare(String id, String groupId, String name) throws LaraException {
+        return client.post("/v2/styleguides/" + id + "/shares/groups/" + groupId, shareName(name)).as(Styleguide.class);
+    }
+
+    public Styleguide renameGroupShare(String id, String groupId, String name) throws LaraException {
+        return client.put("/v2/styleguides/" + id + "/shares/groups/" + groupId, shareName(name)).as(Styleguide.class);
+    }
+
+    public Styleguide revokeGroupShare(String id, String groupId) throws LaraException {
+        return client.delete("/v2/styleguides/" + id + "/shares/groups/" + groupId).as(Styleguide.class);
+    }
+
+    private Map<String, Object> shareName(String name) {
+        return new HttpParams<>().set("name", name).build();
     }
 }

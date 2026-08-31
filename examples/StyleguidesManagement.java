@@ -1,6 +1,8 @@
 import com.translated.lara.Credentials;
 import com.translated.lara.errors.LaraException;
+import com.translated.lara.translator.ResourceShareEntry;
 import com.translated.lara.translator.Styleguide;
+import com.translated.lara.translator.StyleguideShares;
 import com.translated.lara.translator.Translator;
 
 import java.util.List;
@@ -10,6 +12,7 @@ import java.util.List;
  *
  * This example demonstrates:
  * - Create, list, get, update, delete styleguides
+ * - Sharing a styleguide with the account or a group (add, rename, list, revoke)
  */
 public class StyleguidesManagement {
 
@@ -71,6 +74,54 @@ public class StyleguidesManagement {
                 System.out.println("Styleguide not found (returned null as expected)");
             }
             System.out.println();
+
+            // Sharing requires a multi-user account and the appropriate role (account owner for
+            // account-wide shares, owner/admin for group shares). Each call returns the shared
+            // styleguide, whose name reflects the shared copy's name and sharedAt the share time.
+            System.out.println("=== Styleguide Sharing ===");
+            try {
+                // Share with the whole account/team (the optional argument names the shared copy)
+                Styleguide teamShare = lara.styleguides.addAccountShare(styleguideId, "Shared with the team");
+                System.out.println("Shared with the account as: '" + teamShare.getName() + "' (shared at " + teamShare.getSharedAt() + ")");
+
+                // Rename the account/team share
+                Styleguide renamedTeamShare = lara.styleguides.renameAccountShare(styleguideId, "Team styleguide");
+                System.out.println("Renamed account share to: '" + renamedTeamShare.getName() + "'");
+
+                // List every share visible to the caller: the account share, group shares and user shares
+                StyleguideShares shares = lara.styleguides.getShares(styleguideId);
+                if (shares.getAccount() != null) {
+                    System.out.println("Account share '" + shares.getAccount().getShareName() + "' (" + shares.getAccount().getPermissions() + ")");
+                }
+                for (ResourceShareEntry group : shares.getGroups()) {
+                    System.out.println("Group " + group.getName() + ": '" + group.getShareName() + "' (" + group.getPermissions() + ")");
+                }
+                for (ResourceShareEntry user : shares.getUsers()) {
+                    System.out.println("User " + user.getName() + ": '" + user.getShareName() + "' (" + user.getPermissions() + ")");
+                }
+
+                // Revoke the account/team share
+                lara.styleguides.revokeAccountShare(styleguideId);
+                System.out.println("Revoked the account share");
+
+                // Group shares work the same way, addressed by a group ID (grp_...)
+                String groupId = System.getenv("LARA_GROUP_ID"); // Replace with an actual group ID
+                if (groupId != null) {
+                    Styleguide groupShare = lara.styleguides.addGroupShare(styleguideId, groupId, "Shared with the group");
+                    System.out.println("Shared with group " + groupId + " as: '" + groupShare.getName() + "'");
+
+                    lara.styleguides.renameGroupShare(styleguideId, groupId, "Marketing group");
+                    System.out.println("Renamed the group share");
+
+                    lara.styleguides.revokeGroupShare(styleguideId, groupId);
+                    System.out.println("Revoked the group share");
+                } else {
+                    System.out.println("Set LARA_GROUP_ID to try the group sharing methods.");
+                }
+                System.out.println();
+            } catch (LaraException e) {
+                System.out.println("Error sharing styleguide: " + e.getMessage() + "\n");
+            }
 
         } catch (LaraException e) {
             System.out.println("Error during styleguide management: " + e.getMessage());

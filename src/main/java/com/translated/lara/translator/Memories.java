@@ -82,6 +82,42 @@ public class Memories {
         ).asList(Memory.class);
     }
 
+    public MemoryShares getShares(String id) throws LaraException {
+        return client.get("/v2/memories/" + id + "/shares").as(MemoryShares.class);
+    }
+
+    public Memory addAccountShare(String id) throws LaraException { return addAccountShare(id, null); }
+
+    public Memory addAccountShare(String id, String name) throws LaraException {
+        return client.post("/v2/memories/" + id + "/shares", shareName(name)).as(Memory.class);
+    }
+
+    public Memory renameAccountShare(String id, String name) throws LaraException {
+        return client.put("/v2/memories/" + id + "/shares", shareName(name)).as(Memory.class);
+    }
+
+    public Memory revokeAccountShare(String id) throws LaraException {
+        return client.delete("/v2/memories/" + id + "/shares").as(Memory.class);
+    }
+
+    public Memory addGroupShare(String id, String groupId) throws LaraException { return addGroupShare(id, groupId, null); }
+
+    public Memory addGroupShare(String id, String groupId, String name) throws LaraException {
+        return client.post("/v2/memories/" + id + "/shares/groups/" + groupId, shareName(name)).as(Memory.class);
+    }
+
+    public Memory renameGroupShare(String id, String groupId, String name) throws LaraException {
+        return client.put("/v2/memories/" + id + "/shares/groups/" + groupId, shareName(name)).as(Memory.class);
+    }
+
+    public Memory revokeGroupShare(String id, String groupId) throws LaraException {
+        return client.delete("/v2/memories/" + id + "/shares/groups/" + groupId).as(Memory.class);
+    }
+
+    private Map<String, Object> shareName(String name) {
+        return new HttpParams<>().set("name", name).build();
+    }
+
     public MemoryImport importTmx(String id, File tmx) throws LaraException {
         return importTmx(id, tmx, tmx.getName().toLowerCase().endsWith(".gz"));
     }

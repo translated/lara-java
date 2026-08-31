@@ -11,7 +11,8 @@ public class Styleguide {
     private final String ownerId;
     private final Date createdAt;
     private final Date updatedAt;
-    private final Boolean isPersonal;
+    private final Date sharedAt;
+    private final boolean isPersonal;
 
     public Styleguide(String id, String name, String content, String ownerId, Date createdAt, Date updatedAt, Boolean isPersonal) {
         this.id = id;
@@ -20,7 +21,19 @@ public class Styleguide {
         this.ownerId = ownerId;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
-        this.isPersonal = isPersonal;
+        this.sharedAt = null;
+        this.isPersonal = Boolean.TRUE.equals(isPersonal);
+    }
+
+    public Styleguide(String id, String name, String content, String ownerId, Date createdAt, Date updatedAt, Date sharedAt, Boolean isPersonal) {
+        this.id = id;
+        this.name = name;
+        this.content = content;
+        this.ownerId = ownerId;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.sharedAt = sharedAt;
+        this.isPersonal = Boolean.TRUE.equals(isPersonal);
     }
 
     public String getId() {
@@ -47,8 +60,16 @@ public class Styleguide {
         return updatedAt;
     }
 
+    public Date getSharedAt() {
+        return sharedAt;
+    }
+
+    /**
+     * The API sends is_personal: true and omits the key otherwise; it never sends false or null,
+     * so an absent field means "not personal" and is reported as FALSE rather than null.
+     */
     public Boolean getIsPersonal() {
-        return isPersonal;
+        return Boolean.valueOf(isPersonal);
     }
 
     @Override

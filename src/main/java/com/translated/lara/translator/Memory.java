@@ -30,7 +30,7 @@ public class Memory {
     private final String secret;
     private final String ownerId;
     private final int collaboratorsCount;
-    private final Boolean isPersonal;
+    private final boolean isPersonal;
 
     public Memory(String id, Date createdAt, Date updatedAt, Date sharedAt, String name, String externalId, String secret, String ownerId, int collaboratorsCount, Boolean isPersonal) {
         this.id = id;
@@ -42,7 +42,7 @@ public class Memory {
         this.secret = secret;
         this.ownerId = ownerId;
         this.collaboratorsCount = collaboratorsCount;
-        this.isPersonal = isPersonal;
+        this.isPersonal = Boolean.TRUE.equals(isPersonal);
     }
 
     public String getId() {
@@ -81,8 +81,12 @@ public class Memory {
         return collaboratorsCount;
     }
 
+    /**
+     * The API sends is_personal: true and omits the key otherwise; it never sends false or null,
+     * so an absent field means "not personal" and is reported as FALSE rather than null.
+     */
     public Boolean getIsPersonal() {
-        return isPersonal;
+        return Boolean.valueOf(isPersonal);
     }
 
     @Override

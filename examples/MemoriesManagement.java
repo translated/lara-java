@@ -18,6 +18,7 @@ import java.util.List;
  * - Async memory export with callback URL
  * - Translation deletion
  * - Translation with TUID and context
+ * - Sharing a memory with the account or a group (add, rename, list, revoke)
  */
 public class MemoriesManagement {
     
@@ -176,6 +177,55 @@ public class MemoriesManagement {
                 System.out.println();
             } catch (LaraException e) {
                 System.out.println("Error deleting translation: " + e.getMessage() + "\n");
+            }
+
+            // Example 8: Memory sharing
+            // Sharing requires a multi-user account and the appropriate role (account owner for
+            // account-wide shares, owner/admin for group shares). Each call returns the shared
+            // memory, whose name reflects the shared copy's name and sharedAt the share time.
+            System.out.println("=== Memory Sharing ===");
+            try {
+                // Share with the whole account/team (the optional argument names the shared copy)
+                Memory teamShare = lara.memories.addAccountShare(memoryId, "Shared with the team");
+                System.out.println("🤝 Shared with the account as: '" + teamShare.getName() + "' (shared at " + teamShare.getSharedAt() + ")");
+
+                // Rename the account/team share
+                Memory renamedTeamShare = lara.memories.renameAccountShare(memoryId, "Team memory");
+                System.out.println("📝 Renamed account share to: '" + renamedTeamShare.getName() + "'");
+
+                // List every share visible to the caller: the account share, group shares and user shares
+                MemoryShares shares = lara.memories.getShares(memoryId);
+                if (shares.getAccount() != null) {
+                    System.out.println("👥 Account share '" + shares.getAccount().getShareName() + "' (" + shares.getAccount().getPermissions() + ")");
+                }
+                for (ResourceShareEntry group : shares.getGroups()) {
+                    System.out.println("👥 Group " + group.getName() + ": '" + group.getShareName() + "' (" + group.getPermissions() + ")");
+                }
+                for (ResourceShareEntry user : shares.getUsers()) {
+                    System.out.println("👤 User " + user.getName() + ": '" + user.getShareName() + "' (" + user.getPermissions() + ")");
+                }
+
+                // Revoke the account/team share
+                lara.memories.revokeAccountShare(memoryId);
+                System.out.println("🚫 Revoked the account share");
+
+                // Group shares work the same way, addressed by a group ID (grp_...)
+                String groupId = System.getenv("LARA_GROUP_ID"); // Replace with an actual group ID
+                if (groupId != null) {
+                    Memory groupShare = lara.memories.addGroupShare(memoryId, groupId, "Shared with the group");
+                    System.out.println("🤝 Shared with group " + groupId + " as: '" + groupShare.getName() + "'");
+
+                    lara.memories.renameGroupShare(memoryId, groupId, "Marketing group");
+                    System.out.println("📝 Renamed the group share");
+
+                    lara.memories.revokeGroupShare(memoryId, groupId);
+                    System.out.println("🚫 Revoked the group share");
+                } else {
+                    System.out.println("Set LARA_GROUP_ID to try the group sharing methods.");
+                }
+                System.out.println();
+            } catch (LaraException e) {
+                System.out.println("Error sharing memory: " + e.getMessage() + "\n");
             }
 
         } catch (LaraException e) {

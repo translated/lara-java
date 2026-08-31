@@ -24,17 +24,29 @@ public class Glossary {
     private final String id;
     private final Date createdAt;
     private final Date updatedAt;
+    private final Date sharedAt;
     private final String name;
     private final String ownerId;
-    private final Boolean isPersonal;
+    private final boolean isPersonal;
 
     public Glossary(String id, Date createdAt, Date updatedAt, String name, String ownerId, Boolean isPersonal) {
         this.id = id;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
+        this.sharedAt = null;
         this.name = name;
         this.ownerId = ownerId;
-        this.isPersonal = isPersonal;
+        this.isPersonal = Boolean.TRUE.equals(isPersonal);
+    }
+
+    public Glossary(String id, Date createdAt, Date updatedAt, Date sharedAt, String name, String ownerId, Boolean isPersonal) {
+        this.id = id;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.sharedAt = sharedAt;
+        this.name = name;
+        this.ownerId = ownerId;
+        this.isPersonal = Boolean.TRUE.equals(isPersonal);
     }
 
     public String getId() {
@@ -49,6 +61,10 @@ public class Glossary {
         return updatedAt;
     }
 
+    public Date getSharedAt() {
+        return sharedAt;
+    }
+
     public String getName() {
         return name;
     }
@@ -57,8 +73,12 @@ public class Glossary {
         return ownerId;
     }
 
+    /**
+     * The API sends is_personal: true and omits the key otherwise; it never sends false or null,
+     * so an absent field means "not personal" and is reported as FALSE rather than null.
+     */
     public Boolean getIsPersonal() {
-        return isPersonal;
+        return Boolean.valueOf(isPersonal);
     }
 
     @Override
