@@ -94,41 +94,89 @@ public class Glossaries {
         return new HttpParams<>().set("name", name).build();
     }
 
-    public GlossaryImport importCsv(String id, File csv) throws LaraException {
-        return importCsv(id, csv, Glossary.Type.CSV_TABLE_UNI);
+    public GlossaryImport importFile(String id, File file) throws LaraException {
+        return importFile(id, file, new GlossaryImportOptions());
     }
 
-    public GlossaryImport importCsv(String id, File csv, String callbackUrl) throws LaraException {
-        return importCsv(id, csv, Glossary.Type.CSV_TABLE_UNI, csv.getName().toLowerCase().endsWith(".gz"), callbackUrl);
-    }
-
-    public GlossaryImport importCsv(String id, File csv, boolean gzip) throws LaraException {
-        return importCsv(id, csv, Glossary.Type.CSV_TABLE_UNI, gzip);
-    }
-
-    public GlossaryImport importCsv(String id, File csv, Glossary.Type contentType) throws LaraException {
-        return importCsv(id, csv, contentType, csv.getName().toLowerCase().endsWith(".gz"));
-    }
-
-    public GlossaryImport importCsv(String id, File csv, Glossary.Type contentType, String callbackUrl) throws LaraException {
-        return importCsv(id, csv, contentType, csv.getName().toLowerCase().endsWith(".gz"), callbackUrl);
-    }
-
-    public GlossaryImport importCsv(String id, File csv, Glossary.Type contentType, boolean gzip) throws LaraException {
-        return importCsv(id, csv, contentType, gzip, null);
-    }
-
-    public GlossaryImport importCsv(String id, File csv, Glossary.Type contentType, boolean gzip, String callbackUrl) throws LaraException {
+    public GlossaryImport importFile(String id, File file, GlossaryImportOptions options) throws LaraException {
+        if (options == null) options = new GlossaryImportOptions();
+        boolean gzip = options.getGzip() != null ? options.getGzip() : file.getName().toLowerCase().endsWith(".gz");
         Map<String, Object> params = new HttpParams<>()
                 .set("compression", gzip ? "gzip" : null)
-                .set("content_type", contentType.toString())
-                .set("callback_url", callbackUrl)
+                .set("content_type", options.getContentType().toString())
+                .set("callback_url", options.getCallbackUrl())
                 .build();
         Map<String, File> files = new HttpParams<File>()
-                .set("csv", csv)
+                .set("csv", file)
                 .build();
 
         return client.post("/v2/glossaries/" + id + "/import", params, files, null).as(GlossaryImport.class);
+    }
+
+    /**
+     * @deprecated Use {@link #importFile(String, File)} instead.
+     */
+    @Deprecated
+    public GlossaryImport importCsv(String id, File csv) throws LaraException {
+        return importFile(id, csv);
+    }
+
+    /**
+     * @deprecated Use {@link #importFile(String, File, GlossaryImportOptions)} instead.
+     */
+    @Deprecated
+    public GlossaryImport importCsv(String id, File csv, String callbackUrl) throws LaraException {
+        return importFile(id, csv, new GlossaryImportOptions().setCallbackUrl(callbackUrl));
+    }
+
+    /**
+     * @deprecated Use {@link #importFile(String, File, GlossaryImportOptions)} instead.
+     */
+    @Deprecated
+    public GlossaryImport importCsv(String id, File csv, boolean gzip) throws LaraException {
+        return importFile(id, csv, new GlossaryImportOptions().setGzip(gzip));
+    }
+
+    /**
+     * @deprecated Use {@link #importFile(String, File, GlossaryImportOptions)} instead.
+     */
+    @Deprecated
+    public GlossaryImport importCsv(String id, File csv, Glossary.Type contentType) throws LaraException {
+        return importFile(id, csv, new GlossaryImportOptions().setContentType(csvContentType(contentType)));
+    }
+
+    /**
+     * @deprecated Use {@link #importFile(String, File, GlossaryImportOptions)} instead.
+     */
+    @Deprecated
+    public GlossaryImport importCsv(String id, File csv, Glossary.Type contentType, String callbackUrl) throws LaraException {
+        return importFile(id, csv, new GlossaryImportOptions()
+                .setContentType(csvContentType(contentType)).setCallbackUrl(callbackUrl));
+    }
+
+    /**
+     * @deprecated Use {@link #importFile(String, File, GlossaryImportOptions)} instead.
+     */
+    @Deprecated
+    public GlossaryImport importCsv(String id, File csv, Glossary.Type contentType, boolean gzip) throws LaraException {
+        return importFile(id, csv, new GlossaryImportOptions()
+                .setContentType(csvContentType(contentType)).setGzip(gzip));
+    }
+
+    /**
+     * @deprecated Use {@link #importFile(String, File, GlossaryImportOptions)} instead.
+     */
+    @Deprecated
+    public GlossaryImport importCsv(String id, File csv, Glossary.Type contentType, boolean gzip, String callbackUrl) throws LaraException {
+        return importFile(id, csv, new GlossaryImportOptions()
+                .setContentType(csvContentType(contentType)).setGzip(gzip).setCallbackUrl(callbackUrl));
+    }
+
+    private Glossary.Type csvContentType(Glossary.Type contentType) {
+        if (contentType == Glossary.Type.TBX) {
+            throw new IllegalArgumentException("importCsv only supports CSV formats; use importFile for TBX files.");
+        }
+        return contentType;
     }
 
     public GlossaryImport getImportStatus(String id) throws LaraException {

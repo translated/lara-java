@@ -95,7 +95,7 @@ public class GlossariesManagement {
             
             if (csvFile != null && csvFile.exists()) {
                 System.out.println("Importing CSV file: " + csvFile.getName());
-                GlossaryImport csvImport = lara.glossaries.importCsv(glossaryId, csvFile);
+                GlossaryImport csvImport = lara.glossaries.importFile(glossaryId, csvFile);
                 System.out.println("Import started with ID: " + csvImport.getId());
                 System.out.println("Initial progress: " + (csvImport.getProgress() * 100) + "%");
                 
@@ -122,12 +122,14 @@ public class GlossariesManagement {
             if (csvFile != null && csvFile.exists()) {
                 try {
                     String callbackUrl = "https://your-server.example.com/lara/import-callback"; // Replace with your endpoint
-                    GlossaryImport importWithCallback = lara.glossaries.importCsv(glossaryId, csvFile, callbackUrl);
+                    GlossaryImport importWithCallback = lara.glossaries.importFile(glossaryId, csvFile,
+                            new GlossaryImportOptions().setCallbackUrl(callbackUrl));
                     System.out.println("Import started with ID: " + importWithCallback.getId() + " (callback: " + callbackUrl + ")");
 
                     // You can also combine a content type + gzip + callbackUrl:
-                    // lara.glossaries.importCsv(glossaryId, csvFile, Glossary.Type.CSV_TABLE_UNI, callbackUrl);
-                    // lara.glossaries.importCsv(glossaryId, csvFile, Glossary.Type.CSV_TABLE_UNI, true, callbackUrl);
+                    // lara.glossaries.importFile(glossaryId, new File(csvFile.getPath() + ".gz"),
+                    //         new GlossaryImportOptions().setContentType(Glossary.Type.CSV_TABLE_UNI)
+                    //                 .setGzip(true).setCallbackUrl(callbackUrl));
                     System.out.println();
                 } catch (LaraException e) {
                     System.out.println("Error starting CSV import with callback: " + e.getMessage() + "\n");

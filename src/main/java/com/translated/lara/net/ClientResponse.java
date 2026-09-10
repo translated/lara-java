@@ -8,8 +8,9 @@ import com.translated.lara.errors.LaraApiConnectionException;
 import com.translated.lara.errors.LaraApiConnectionTimeoutException;
 import com.translated.lara.errors.LaraApiException;
 
-import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.HttpURLConnection;
@@ -18,7 +19,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ClientResponse {
 
@@ -41,11 +41,16 @@ public class ClientResponse {
         }
 
         boolean isSuccessful = httpStatus >= 200 && httpStatus < 300;
-        if (isSuccessful && contentType != null && contentType.contains("text/csv")) {
-            try (BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
-                String csvBody = reader.lines().collect(Collectors.joining("\n"));
-                return new ClientResponse(gson, contentType, csvBody);
+        if (isSuccessful && isRawTextContent(contentType)) {
+            try (InputStream input = connection.getInputStream();
+                 ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+                byte[] buffer = new byte[8192];
+                int bytesRead;
+                while ((bytesRead = input.read(buffer)) != -1) {
+                    output.write(buffer, 0, bytesRead);
+                }
+                String rawBody = new String(output.toByteArray(), StandardCharsets.UTF_8);
+                return new ClientResponse(gson, contentType, rawBody);
             } catch (IOException e) {
                 throw new LaraApiConnectionException("Failed to get response stream", e);
             }
@@ -86,10 +91,10 @@ public class ClientResponse {
         }
     }
 
-    ClientResponse(Gson gson, String contentType, String csvBody) {
+    ClientResponse(Gson gson, String contentType, String rawBody) {
         this.gson = gson;
         this.contentType = contentType;
-        this.rawData = csvBody;
+        this.rawData = rawBody;
         this.data = null;
         this.error = null;
     }
@@ -111,10 +116,15 @@ public class ClientResponse {
 
     @Override
     public String toString() {
-        if (contentType != null && contentType.contains("text/csv")) {
+        if (isRawTextContent(contentType)) {
             return rawData;
         } else {
             return gson.toJson(data);
         }
+    }
+
+    private static boolean isRawTextContent(String contentType) {
+        return contentType != null
+                && (contentType.contains("text/csv") || contentType.contains("application/xml"));
     }
 }

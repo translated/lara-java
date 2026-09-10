@@ -150,7 +150,7 @@ java -cp .:../target/classes:../target/dependency/* MemoriesManagement
 ### Glossary Management
 - **[GlossariesManagement.java](examples/GlossariesManagement.java)** - Glossary management examples
   - Create, list, update, delete glossaries
-  - CSV import with status monitoring
+  - CSV and TBX import with status monitoring
   - Glossary export (sync and async)
   - Glossary terms count
   - Import status checking
@@ -433,9 +433,17 @@ lara.memories.revokeAccountShare(memory.getId());
 // Create glossary
 Glossary glossary = lara.glossaries.create("MyGlossary");
 
-// Import CSV from file
-File csvFile = new File("/path/to/your/glossary.csv");  // Replace with actual CSV file path
-GlossaryImport glossaryImport = lara.glossaries.importCsv("gls_1A2b3C4d5E6f7G8h9I0jKl", csvFile);
+// Import a glossary file (use Glossary.Type.TBX for TBX files)
+File glossaryFile = new File("/path/to/your/glossary.csv");
+GlossaryImport glossaryImport = lara.glossaries.importFile(
+        "gls_1A2b3C4d5E6f7G8h9I0jKl",
+        glossaryFile,
+        new GlossaryImportOptions().setContentType(Glossary.Type.CSV_TABLE_UNI));
+
+// Omit options to use unidirectional CSV and detect gzip from the filename.
+// A callback can be supplied independently:
+// lara.glossaries.importFile(glossary.getId(), glossaryFile,
+//         new GlossaryImportOptions().setCallbackUrl(callbackUrl));
 
 // Add (or replace) individual terms to glossary
 List<Map<String, String>> terms = Arrays.asList(

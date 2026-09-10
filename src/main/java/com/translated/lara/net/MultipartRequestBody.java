@@ -90,7 +90,10 @@ class MultipartRequestBody implements RequestBody {
                 File value = entry.getValue();
 
                 String filename = value.getName();
-                String contentType = URLConnection.guessContentTypeFromName(filename);
+                String contentType = filename.toLowerCase(Locale.ROOT).endsWith(".tbx")
+                        ? "application/xml"
+                        : URLConnection.guessContentTypeFromName(filename);
+                if (contentType == null) contentType = "application/octet-stream";
 
                 writer.append("--").append(boundary).append(NL);
                 writer.append("Content-Disposition: form-data; name=\"").append(key).append("\"; filename=\"").append(filename).append("\"").append(NL);
