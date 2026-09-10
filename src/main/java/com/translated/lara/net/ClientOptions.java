@@ -8,6 +8,7 @@ public class ClientOptions {
     private long connectionTimeoutMs = 0;
     private long readTimeoutMs = 0;
     private String sessionId = null;
+    private boolean authenticateOnStartup = false;
 
     public String getServerUrl() {
         return serverUrl == null ? DEFAULT_SERVER_URL : serverUrl;
@@ -48,6 +49,15 @@ public class ClientOptions {
 
     public ClientOptions setSessionId(String sessionId) {
         this.sessionId = sessionId;
+        return this;
+    }
+
+    public boolean isAuthenticateOnStartup() {
+        return authenticateOnStartup;
+    }
+
+    public ClientOptions setAuthenticateOnStartup(boolean authenticateOnStartup) {
+        this.authenticateOnStartup = authenticateOnStartup;
         return this;
     }
 

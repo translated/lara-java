@@ -38,13 +38,22 @@ public class AuthToken {
         if (parts.length != 3)
             throw new IllegalArgumentException("Invalid JWT format");
 
-        byte[] decodedBytes = Base64.getUrlDecoder().decode(parts[1]);
-        String decodedPayload = new String(decodedBytes, StandardCharsets.UTF_8);
-        JsonObject jsonObject = JsonParser.parseString(decodedPayload).getAsJsonObject();
+        JsonObject jsonObject;
+        try {
+            byte[] decodedBytes = Base64.getUrlDecoder().decode(parts[1]);
+            String decodedPayload = new String(decodedBytes, StandardCharsets.UTF_8);
+            jsonObject = JsonParser.parseString(decodedPayload).getAsJsonObject();
+        } catch (RuntimeException e) {
+            throw new IllegalArgumentException("Invalid JWT token", e);
+        }
 
         if (!jsonObject.has("exp") || !jsonObject.get("exp").isJsonPrimitive())
             throw new IllegalArgumentException("JWT missing 'exp' claim");
 
-        return jsonObject.get("exp").getAsLong() * 1000;
+        try {
+            return jsonObject.get("exp").getAsLong() * 1000;
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid JWT token", e);
+        }
     }
 }

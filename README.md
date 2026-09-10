@@ -201,6 +201,19 @@ Credentials credentials = new Credentials(
 ```
 
 
+#### Startup Authentication
+
+By default the SDK authenticates lazily — the token is fetched on the first request. If you'd rather not pay that latency on the first call, enable startup authentication so the token is fetched in the background as soon as a `Translator` (or `LaraClient`) is created:
+
+```java
+Translator lara = new Translator(
+    credentials,
+    new ClientOptions().setAuthenticateOnStartup(true)
+);
+```
+
+When enabled, authentication runs on a background daemon thread after a short random delay (0–1000 ms); the delay staggers many clients created at once so they don't all hit the auth endpoint simultaneously. It is best-effort — if it fails, the first real request re-attempts and surfaces any error.
+
 ### 🌍 Translator
 
 ```java

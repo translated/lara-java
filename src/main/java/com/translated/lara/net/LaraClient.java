@@ -6,6 +6,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 import com.translated.lara.Version;
 import com.translated.lara.authentication.AccessKey;
 import com.translated.lara.authentication.AuthToken;
@@ -34,12 +35,26 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class LaraClient {
 
-    private AuthToken authToken;
-    private AccessKey accessKey;
+    private static final ScheduledExecutorService STARTUP_AUTH_EXECUTOR =
+            Executors.newSingleThreadScheduledExecutor(runnable -> {
+                Thread thread = new Thread(runnable, "lara-auth-startup");
+                thread.setDaemon(true);
+                return thread;
+            });
+
+    private static final String EXPIRED_TOKEN_ERROR_TYPE = "TokenExpiredError";
+
+    private volatile AuthToken authToken;
+    private final Object authLock = new Object();
+    private final AccessKey accessKey;
     private final String baseUrl;
     private final Map<String, String> extraHeaders  = new HashMap<>();
     private final int connectionTimeout;
@@ -65,6 +80,7 @@ public class LaraClient {
         this.readTimeout = (int) options.getReadTimeoutMs();
         this.sessionId = options.getSessionId();
         this.accessKey = accessKey;
+        if (options.isAuthenticateOnStartup()) authenticateOnStartup();
     }
 
     public LaraClient(AuthToken authToken, ClientOptions options) {
@@ -73,10 +89,23 @@ public class LaraClient {
         this.readTimeout = (int) options.getReadTimeoutMs();
         this.sessionId = options.getSessionId();
         this.authToken = authToken;
+        this.accessKey = null;
+        if (options.isAuthenticateOnStartup()) authenticateOnStartup();
     }
 
     public void setExtraHeader(String name, String value) {
         extraHeaders.put(name, value);
+    }
+
+    // Random delay so many clients don't hit the auth endpoint at once; shared daemon thread.
+    private void authenticateOnStartup() {
+        STARTUP_AUTH_EXECUTOR.schedule(() -> {
+            try {
+                ensureAuthenticated(null);
+            } catch (LaraException ignored) {
+                // expected; the first request retries and surfaces any error
+            }
+        }, ThreadLocalRandom.current().nextInt(0, 1001), TimeUnit.MILLISECONDS);
     }
 
     public ClientResponse get(String path) throws LaraException {
@@ -139,9 +168,8 @@ public class LaraClient {
         path = normalizePath(path);
         headers = prune(headers);
 
-        if (this.authToken == null || this.authToken.isTokenExpired()) {
-            this.refreshOrReauthenticate();
-        }
+        ensureAuthenticated(null);
+        AuthToken token = this.authToken;
 
         HttpURLConnection connection = connect(baseUrl + path);
 
@@ -152,7 +180,7 @@ public class LaraClient {
             connection.setUseCaches(false);
             connection.setRequestProperty("Date", date());
             connection.setRequestProperty("X-Lara-SDK-Name", "lara-java");
-            connection.setRequestProperty("Authorization", "Bearer " + authToken.getToken());
+            connection.setRequestProperty("Authorization", "Bearer " + token.getToken());
 
             if (Version.get() != null) {
                 connection.setRequestProperty("X-Lara-SDK-Version", Version.get());
@@ -189,8 +217,8 @@ public class LaraClient {
                 String errorBody = readErrorStream(connection);
                 connection.disconnect();
 
-                if (responseCode == 401 && !isRetry && errorBody != null && errorBody.contains("jwt expired")) {
-                    this.refreshOrReauthenticate();
+                if (responseCode == 401 && !isRetry && isExpiredTokenError(errorBody)) {
+                    this.ensureAuthenticated(token);
                     return requestLineStream(method, path, body, headers, true);
                 }
 
@@ -232,9 +260,8 @@ public class LaraClient {
         path = normalizePath(path);
         headers = prune(headers);
 
-        if (this.authToken == null || this.authToken.isTokenExpired()) {
-            this.refreshOrReauthenticate();
-        }
+        ensureAuthenticated(null);
+        AuthToken token = this.authToken;
 
         HttpURLConnection connection = connect(baseUrl + path);
 
@@ -245,7 +272,7 @@ public class LaraClient {
             connection.setUseCaches(false);
             connection.setRequestProperty("Date", date());
             connection.setRequestProperty("X-Lara-SDK-Name", "lara-java");
-            connection.setRequestProperty("Authorization", "Bearer " + authToken.getToken());
+            connection.setRequestProperty("Authorization", "Bearer " + token.getToken());
 
             // extra headers
             for (Map.Entry<String, String> header : extraHeaders.entrySet())
@@ -272,10 +299,12 @@ public class LaraClient {
             if (responseCode == 401) {
                 String errorBody = readErrorStream(connection);
 
-                if (errorBody != null && errorBody.contains("jwt expired") && !isRetry) {
-                    this.refreshOrReauthenticate();
+                if (!isRetry && isExpiredTokenError(errorBody)) {
+                    this.ensureAuthenticated(token);
                     return this.request(method, path, body, headers, true);
                 }
+
+                throw parseApiError(responseCode, errorBody);
             }
 
             return ClientResponse.fromConnection(gson, connection);
@@ -295,9 +324,8 @@ public class LaraClient {
         path = normalizePath(path);
         headers = prune(headers);
 
-        if (this.authToken == null || this.authToken.isTokenExpired()) {
-            this.refreshOrReauthenticate();
-        }
+        ensureAuthenticated(null);
+        AuthToken token = this.authToken;
 
         HttpURLConnection connection = connect(baseUrl + path);
 
@@ -308,7 +336,7 @@ public class LaraClient {
             connection.setUseCaches(false);
             connection.setRequestProperty("Date", date());
             connection.setRequestProperty("X-Lara-SDK-Name", "lara-java");
-            connection.setRequestProperty("Authorization", "Bearer " + authToken.getToken());
+            connection.setRequestProperty("Authorization", "Bearer " + token.getToken());
 
             if (Version.get() != null) {
                 connection.setRequestProperty("X-Lara-SDK-Version", Version.get());
@@ -345,8 +373,8 @@ public class LaraClient {
                 String errorBody = readErrorStream(connection);
                 connection.disconnect();
 
-                if (responseCode == 401 && !isRetry && errorBody != null && errorBody.contains("jwt expired")) {
-                    this.refreshOrReauthenticate();
+                if (responseCode == 401 && !isRetry && isExpiredTokenError(errorBody)) {
+                    this.ensureAuthenticated(token);
                     return requestStream(method, path, body, headers, true);
                 }
 
@@ -360,22 +388,31 @@ public class LaraClient {
         }
     }
 
-    private void refreshOrReauthenticate() throws LaraException {
-        if (this.authToken != null && this.authToken.getRefreshToken() != null) {
-            try {
-                this.refreshToken();
-                return;
-            } catch (LaraException e) {
-                if (this.accessKey == null) throw e;
+    // Single-flight; pass the 401-rejected token to force a refresh.
+    private void ensureAuthenticated(AuthToken rejected) throws LaraException {
+        AuthToken current = this.authToken;
+        if (current != null && current != rejected && !current.isTokenExpired()) return;
+
+        synchronized (authLock) {
+            current = this.authToken;
+            if (current != null && current != rejected && !current.isTokenExpired()) return;
+
+            if (current != null && current.getRefreshToken() != null) {
+                try {
+                    this.refreshToken();
+                    return;
+                } catch (LaraException e) {
+                    if (this.accessKey == null) throw e;
+                }
             }
-        }
 
-        if (this.accessKey != null) {
-            this.authToken = this.authenticate(this.accessKey);
-            return;
-        }
+            if (this.accessKey != null) {
+                this.authToken = this.authenticate(this.accessKey);
+                return;
+            }
 
-        throw new LaraApiConnectionException("No authentication method available for token renewal");
+            throw new LaraApiConnectionException("No authentication method available for token renewal");
+        }
     }
 
     private AuthToken authenticate(AccessKey accessKey) throws LaraException {
@@ -422,6 +459,8 @@ public class LaraClient {
 
         } catch(IOException e) {
             throw new LaraApiConnectionException("Failed to connect to URL: " + baseUrl, e);
+        } catch (IllegalArgumentException | JsonSyntaxException e) {
+            throw new LaraApiConnectionException("Invalid authentication response from " + baseUrl, e);
         } finally {
             connection.disconnect();
         }
@@ -430,6 +469,8 @@ public class LaraClient {
     private void refreshToken() throws LaraException {
         HttpURLConnection connection = connect(baseUrl + "/v2/auth/refresh");
 
+        if (connectionTimeout > 0) connection.setConnectTimeout(connectionTimeout);
+        if (readTimeout > 0) connection.setReadTimeout(readTimeout);
         connection.setUseCaches(false);
         connection.setRequestProperty("Date", date());
         connection.setRequestProperty("X-Lara-SDK-Name", "lara-java");
@@ -453,6 +494,8 @@ public class LaraClient {
 
         } catch (IOException e) {
             throw new LaraApiConnectionException("Failed to connect to URL: " + baseUrl, e);
+        } catch (IllegalArgumentException | JsonSyntaxException e) {
+            throw new LaraApiConnectionException("Invalid refresh response from " + baseUrl, e);
         } finally {
             connection.disconnect();
         }
@@ -522,6 +565,15 @@ public class LaraClient {
             return reader.lines().collect(Collectors.joining("\n"));
         } catch (Exception e) {
             return null;
+        }
+    }
+
+    private boolean isExpiredTokenError(String errorBody) {
+        try {
+            JsonObject error = JsonParser.parseString(errorBody).getAsJsonObject();
+            return EXPIRED_TOKEN_ERROR_TYPE.equals(error.get("type").getAsString());
+        } catch (Exception e) {
+            return false;
         }
     }
 
