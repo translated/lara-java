@@ -100,7 +100,7 @@ public class Glossaries {
 
     public GlossaryImport importFile(String id, File file, GlossaryImportOptions options) throws LaraException {
         if (options == null) options = new GlossaryImportOptions();
-        boolean gzip = options.getGzip() != null ? options.getGzip() : file.getName().toLowerCase().endsWith(".gz");
+        boolean gzip = Boolean.TRUE.equals(options.getGzip());
         Map<String, Object> params = new HttpParams<>()
                 .set("compression", gzip ? "gzip" : null)
                 .set("content_type", options.getContentType().toString())

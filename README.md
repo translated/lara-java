@@ -440,7 +440,7 @@ GlossaryImport glossaryImport = lara.glossaries.importFile(
         glossaryFile,
         new GlossaryImportOptions().setContentType(Glossary.Type.CSV_TABLE_UNI));
 
-// Omit options to use unidirectional CSV and detect gzip from the filename.
+// Omit options to use unidirectional CSV.
 // A callback can be supplied independently:
 // lara.glossaries.importFile(glossary.getId(), glossaryFile,
 //         new GlossaryImportOptions().setCallbackUrl(callbackUrl));

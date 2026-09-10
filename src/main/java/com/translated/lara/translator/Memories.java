@@ -119,11 +119,11 @@ public class Memories {
     }
 
     public MemoryImport importTmx(String id, File tmx) throws LaraException {
-        return importTmx(id, tmx, tmx.getName().toLowerCase().endsWith(".gz"));
+        return importTmx(id, tmx, false);
     }
 
     public MemoryImport importTmx(String id, File tmx, String callbackUrl) throws LaraException {
-        return importTmx(id, tmx, tmx.getName().toLowerCase().endsWith(".gz"), callbackUrl);
+        return importTmx(id, tmx, false, callbackUrl);
     }
 
     public MemoryImport importTmx(String id, File tmx, boolean gzip) throws LaraException {

@@ -126,10 +126,6 @@ public class GlossariesManagement {
                             new GlossaryImportOptions().setCallbackUrl(callbackUrl));
                     System.out.println("Import started with ID: " + importWithCallback.getId() + " (callback: " + callbackUrl + ")");
 
-                    // You can also combine a content type + gzip + callbackUrl:
-                    // lara.glossaries.importFile(glossaryId, new File(csvFile.getPath() + ".gz"),
-                    //         new GlossaryImportOptions().setContentType(Glossary.Type.CSV_TABLE_UNI)
-                    //                 .setGzip(true).setCallbackUrl(callbackUrl));
                     System.out.println();
                 } catch (LaraException e) {
                     System.out.println("Error starting CSV import with callback: " + e.getMessage() + "\n");

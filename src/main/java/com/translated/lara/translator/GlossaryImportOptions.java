@@ -3,7 +3,7 @@ package com.translated.lara.translator;
 /** Options for importing a glossary file. */
 public class GlossaryImportOptions {
     private Glossary.Type contentType = Glossary.Type.CSV_TABLE_UNI;
-    private Boolean gzip = null;
+    private Boolean gzip = false;
     private String callbackUrl = null;
 
     public Glossary.Type getContentType() {
@@ -15,7 +15,7 @@ public class GlossaryImportOptions {
         return this;
     }
 
-    /** Null detects compression from the filename; true marks an already compressed file. */
+    /** Whether the supplied file is already gzip-compressed. Defaults to false; null also disables the marker. */
     public Boolean getGzip() {
         return gzip;
     }
