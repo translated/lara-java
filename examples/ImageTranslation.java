@@ -6,6 +6,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.ArrayList;
 
 /**
  * Complete image translation examples for the Lara Java SDK
@@ -15,6 +16,7 @@ import java.util.List;
  * - Image translation with advanced options (memories, glossaries, style)
  * - Text extraction from images with translation
  * - Text extraction with verbose output for paragraph details
+ * - Editing translations and rendering with classic and generative models
  */
 public class ImageTranslation {
 
@@ -48,14 +50,13 @@ public class ImageTranslation {
 
         try {
             ImageTranslateOptions translateOptions = new ImageTranslateOptions()
-                .setModel(ImageTranslationModel.OVERLAY);
-
-            InputStream imageStream = lara.images.translate(sampleImage, targetLang, translateOptions);
+                .setModel(ImageTranslationModel.GENERATIVE_FAST);
 
             // Save translated image - replace with your desired output path
             String outputPath = "sample_image_translated.png";
-            Files.copy(imageStream, Paths.get(outputPath));
-            imageStream.close();
+            try (InputStream imageStream = lara.images.translate(sampleImage, null, targetLang, translateOptions)) {
+                Files.copy(imageStream, Paths.get(outputPath));
+            }
 
             System.out.println("✅ Image translation completed");
             System.out.println("📄 Translated image saved to: " + outputPath + "\n");
@@ -163,7 +164,47 @@ public class ImageTranslation {
             System.out.println("Error in advanced text extraction: " + e.getMessage() + "\n");
         }
 
+        // Example 5: Request layout, edit a translation, and render it without translating again
+        System.out.println("=== Extract, Edit, and Render Translations ===");
+        try {
+            ImageTextResult result = lara.images.translateText(sampleImage, sourceLang, targetLang,
+                new ImageTextTranslateOptions().setIncludeLayout(true));
+
+            if (result.getParagraphs().isEmpty()) {
+                System.out.println("No text found to render.");
+                return;
+            }
+
+            // includeLayout=true guarantees complete layout metadata on every paragraph.
+            List<ImageLayoutParagraph> editedParagraphs = new ArrayList<>();
+            for (ImageParagraph paragraph : result.getParagraphs()) {
+                editedParagraphs.add((ImageLayoutParagraph) paragraph);
+            }
+            ImageLayoutParagraph first = editedParagraphs.get(0);
+            editedParagraphs.set(0, new ImageLayoutParagraph(first.getText(), "Hallo Welt!",
+                first.getBbox(), first.getLinesBboxes(), first.getTextInfo(), first.getAlignment()));
+
+            try (InputStream rendered = lara.images.renderTranslated(sampleImage, result.getSourceLanguage(),
+                    targetLang, editedParagraphs, ImageTranslationModel.OVERLAY)) {
+                Files.copy(rendered, Paths.get("edited_image_overlay.png"));
+            }
+            System.out.println("Edited image saved to: edited_image_overlay.png");
+
+            // Generative models accept text-only paragraphs. Omit model for generative_fast.
+            // To choose explicitly, pass ImageGenerativeModel.GENERATIVE or GENERATIVE_FAST.
+            List<ImageParagraph> textOnlyParagraphs = new ArrayList<>();
+            for (ImageParagraph paragraph : editedParagraphs) {
+                textOnlyParagraphs.add(new ImageParagraph(paragraph.getText(), paragraph.getTranslation()));
+            }
+            // Pass null to omit the source language. The same File can be reused for each request.
+            try (InputStream rendered = lara.images.renderTranslated(sampleImage, null, targetLang, textOnlyParagraphs)) {
+                Files.copy(rendered, Paths.get("edited_image_generative.png"));
+            }
+            System.out.println("Generative image saved to: edited_image_generative.png");
+        } catch (LaraException | IOException e) {
+            System.out.println("Error extracting, editing, or rendering translations: " + e.getMessage());
+        }
+
         System.out.println("=== All examples completed ===");
     }
 }
-

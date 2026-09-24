@@ -16,6 +16,7 @@ import com.translated.lara.errors.LaraApiException;
 import com.translated.lara.errors.LaraException;
 import com.translated.lara.net.json.AudioStatusTypeAdapter;
 import com.translated.lara.net.json.DocumentStatusTypeAdapter;
+import com.translated.lara.net.json.ImageParagraphTypeAdapterFactory;
 import com.translated.lara.net.json.TextResultValueTypeAdapter;
 import com.translated.lara.net.json.VoiceGenderTypeAdapter;
 import com.translated.lara.translator.Audio;
@@ -66,6 +67,7 @@ public class LaraClient {
             .registerTypeAdapter(Document.Status.class, new DocumentStatusTypeAdapter())
             .registerTypeAdapter(Audio.Status.class, new AudioStatusTypeAdapter())
             .registerTypeAdapter(VoiceGender.class, new VoiceGenderTypeAdapter())
+            .registerTypeAdapterFactory(new ImageParagraphTypeAdapterFactory())
             .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
             .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
             .create();

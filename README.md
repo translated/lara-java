@@ -339,18 +339,105 @@ File image = new File("/path/to/your/image.png"); // Replace with actual file pa
 
 // Translate image and receive a translated image stream
 ImageTranslateOptions options = new ImageTranslateOptions()
-    .setModel(ImageTranslationModel.INPAINTING)
+    .setModel(ImageTranslationModel.GENERATIVE_FAST)
     .setStyle(TranslationStyle.FAITHFUL);
 
-InputStream translatedImageStream = lara.images.translate(image, "en", "fr", options);
+try (InputStream translatedImage = lara.images.translate(image, "en", "fr", options)) {
+    Files.copy(translatedImage, Paths.get("translated.png"));
+}
 
-// Extract and translate text blocks from an image
+// Request complete layout metadata for classic rendering
 ImageTextTranslateOptions textOptions = new ImageTextTranslateOptions()
-    .setAdaptTo("mem_1A2b3C4d5E6f7G8h9I0jKl")  // Replace with actual memory IDs
-    .setGlossaries("gls_1A2b3C4d5E6f7G8h9I0jKl");  // Replace with actual glossary IDs
+    .setIncludeLayout(true);
 
 ImageTextResult textBlocks = lara.images.translateText(image, "en", "fr", textOptions);
+List<ImageLayoutParagraph> editedParagraphs = new ArrayList<>();
+for (ImageParagraph paragraph : textBlocks.getParagraphs()) {
+    editedParagraphs.add((ImageLayoutParagraph) paragraph);
+}
+
+// Replace the first translation while preserving its geometry and text styling
+if (!editedParagraphs.isEmpty()) {
+    ImageLayoutParagraph first = editedParagraphs.get(0);
+    editedParagraphs.set(0, new ImageLayoutParagraph(first.getText(), "Bonjour le monde !",
+        first.getBbox(), first.getLinesBboxes(), first.getTextInfo(), first.getAlignment()));
+}
+
+try (InputStream rendered = lara.images.renderTranslated(image, textBlocks.getSourceLanguage(),
+        "fr", editedParagraphs, ImageTranslationModel.OVERLAY)) {
+    Files.copy(rendered, Paths.get("edited-overlay.png"));
+}
+
+// Generative models accept text-only paragraphs. Omit model for generative_fast.
+// To choose explicitly, pass ImageGenerativeModel.GENERATIVE or GENERATIVE_FAST.
+List<ImageParagraph> textOnlyParagraphs = new ArrayList<>();
+for (ImageParagraph paragraph : editedParagraphs) {
+    textOnlyParagraphs.add(new ImageParagraph(paragraph.getText(), paragraph.getTranslation()));
+}
+try (InputStream rendered = lara.images.renderTranslated(image, null, "fr", textOnlyParagraphs)) {
+    Files.copy(rendered, Paths.get("edited-generative.png"));
+}
 ```
+
+`renderTranslated(image, source, target, paragraphs, model)` renders supplied translations without translating
+them again. Pass `null` for `source` to omit the source language. Omit `model` to use the API
+default, `generative_fast`. A shorter `renderTranslated(image, target, paragraphs)` overload omits both.
+The returned `InputStream` must be closed by the caller; the same input `File` can be reused across requests.
+
+Both model overloads also accept a trailing `Boolean noTrace` argument, matching Node's parameter order:
+`renderTranslated(image, source, target, paragraphs, model, noTrace)`. Set it to `true` to send
+`X-No-Trace: true`; `false`, `null`, or omitting the argument leaves the header unset.
+
+To use the default model with tracing control, call
+`renderTranslated(image, source, target, paragraphs, boolean noTrace)`. This accepts both text-only and
+layout paragraphs without a model argument. For layout paragraphs, a literal `null` model is ambiguous
+between the two enum overloads; use this overload instead.
+
+```java
+try (InputStream rendered = lara.images.renderTranslated(image, "en", "fr", textOnlyParagraphs,
+        true)) {
+    Files.copy(rendered, Paths.get("edited-no-trace.png"));
+}
+```
+
+| Model argument | Paragraph type |
+| --- | --- |
+| `ImageTranslationModel` (including `OVERLAY` and `INPAINTING`) | `List<? extends ImageLayoutParagraph>` |
+| `ImageGenerativeModel.GENERATIVE` or `.GENERATIVE_FAST` | `List<? extends ImageParagraph>` |
+| Omitted | `List<? extends ImageParagraph>` |
+
+The overloads enforce paragraph types at compile time. `ImageLayoutParagraph` extends `ImageParagraph` and
+requires `text`, `translation`, `bbox`, `linesBboxes`, `textInfo`, and `alignment` constructor arguments.
+Passing `List<ImageParagraph>` with `ImageTranslationModel.OVERLAY` or `.INPAINTING` does not compile.
+Use `ImageGenerativeModel` to explicitly select a generative model with text-only paragraphs. The existing
+`ImageTranslationModel` enum is unchanged; since its values can select either family, its rendering overload
+always requires layout paragraphs. This also applies to variables of that enum type.
+
+`ImageParagraph` contains `text`, `translation`, `adaptedToMatches`, and `glossariesMatches`. Its existing
+constructor and match getters remain available; use `new ImageParagraph(text, translation)` for text-only
+rendering. `ImageLayoutParagraph` extends it with `bbox`, `linesBboxes`, `textInfo`, and `alignment`.
+Both paragraph types can be used with generative models. `ImageBBox` contains `topLeft`, `topRight`,
+`bottomRight`, and `bottomLeft` as integer `[x, y]` arrays. `ImageTextInfo` contains `direction` (`ltr`, `rtl`,
+or `ttb`), `textColor`, and `backgroundColor`; alignment is `left`, `center`, or `right`.
+
+`setIncludeLayout(true)` sends `include_layout=true` to `POST /v2/images/translate-text`.
+**The API returns layout only when this option is explicitly `true`.** `ImageTextResult` continues to return
+`List<ImageParagraph>`, with entries deserialized according to the response:
+
+| `includeLayout` | Response paragraphs |
+| --- | --- |
+| Omitted, `null`, or `false` | `ImageParagraph`, without layout |
+| `true` | `ImageLayoutParagraph` with complete layout metadata |
+
+When `includeLayout=true`, every paragraph has the geometry and text styling required by classic rendering
+models and can be cast to `ImageLayoutParagraph`. Omitting the option omits the parameter; `false` explicitly
+disables layout. `verbose=true` alone does not enable layout.
+
+`setVerbose(true)` independently requests memory and glossary matches, which remain optional on either
+paragraph class. Rendering excludes these matches and converts layout properties to the API's snake_case
+JSON fields. Paragraph contents are validated by the API: classic models require complete layout, and
+generative models accept text only or complete layout. Partial layout and null required values are invalid
+and reported through the usual `LaraApiException` handling.
 
 ### 🎵 Audio Translation
 #### Simple audio translation

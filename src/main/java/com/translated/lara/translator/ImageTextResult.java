@@ -20,6 +20,10 @@ public class ImageTextResult {
         return sourceLanguage;
     }
 
+    /**
+     * @return translated paragraphs; when {@code includeLayout=true}, every entry is an
+     * {@link ImageLayoutParagraph} instance with complete layout metadata
+     */
     public List<ImageParagraph> getParagraphs() {
         return paragraphs;
     }

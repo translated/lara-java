@@ -12,6 +12,7 @@ public class ImageTextTranslateOptions {
     private Boolean noTrace = null;
     private TranslationStyle style = null;
     private Boolean verbose = null;
+    private Boolean includeLayout = null;
 
     /**
      * Gets the list of domains, brands or styles to adapt the translation to.
@@ -138,6 +139,26 @@ public class ImageTextTranslateOptions {
     }
 
     /**
+     * @return whether layout is requested, or {@code null} if not specified
+     */
+    public Boolean getIncludeLayout() {
+        return includeLayout;
+    }
+
+    /**
+     * Includes complete layout metadata on every returned paragraph when {@code true}.
+     * A value of {@code false}, {@code null}, or leaving this option unset returns
+     * text-only paragraphs.
+     *
+     * @param includeLayout {@code true} to request layout, {@code false} to omit it, or {@code null}
+     * @return this options instance for chaining
+     */
+    public ImageTextTranslateOptions setIncludeLayout(Boolean includeLayout) {
+        this.includeLayout = includeLayout;
+        return this;
+    }
+
+    /**
      * Converts these options into HTTP parameters for the image translation API.
      *
      * @return an {@link HttpParams} instance containing the configured options
@@ -148,6 +169,7 @@ public class ImageTextTranslateOptions {
         params.set("glossaries", glossaries);
         params.set("style", TranslationStyle.toString(style));
         params.set("verbose", verbose);
+        params.set("include_layout", includeLayout);
         return params;
     }
 }
