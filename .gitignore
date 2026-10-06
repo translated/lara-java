@@ -44,3 +44,7 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+# Python version tool
+__pycache__/
+*.py[cod]
