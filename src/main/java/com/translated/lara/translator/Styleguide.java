@@ -13,6 +13,7 @@ public class Styleguide {
     private final Date updatedAt;
     private final Date sharedAt;
     private final boolean isPersonal;
+    private final PermissionMask permissionMask;
 
     public Styleguide(String id, String name, String content, String ownerId, Date createdAt, Date updatedAt, Boolean isPersonal) {
         this.id = id;
@@ -23,6 +24,7 @@ public class Styleguide {
         this.updatedAt = updatedAt;
         this.sharedAt = null;
         this.isPersonal = Boolean.TRUE.equals(isPersonal);
+        this.permissionMask = null;
     }
 
     public Styleguide(String id, String name, String content, String ownerId, Date createdAt, Date updatedAt, Date sharedAt, Boolean isPersonal) {
@@ -34,7 +36,26 @@ public class Styleguide {
         this.updatedAt = updatedAt;
         this.sharedAt = sharedAt;
         this.isPersonal = Boolean.TRUE.equals(isPersonal);
+        this.permissionMask = null;
     }
+
+    public Styleguide(String id, String name, String content, String ownerId, Date createdAt, Date updatedAt, Date sharedAt, Boolean isPersonal, PermissionMask permissionMask) {
+        this.id = id;
+        this.name = name;
+        this.content = content;
+        this.ownerId = ownerId;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.sharedAt = sharedAt;
+        this.isPersonal = Boolean.TRUE.equals(isPersonal);
+        this.permissionMask = permissionMask;
+    }
+
+    /**
+     * Effective combined mask in GET list/detail; selected share's stored mask in GET /shares.
+     * @return the mask, or null when omitted, including non-GET responses.
+     */
+    public PermissionMask getPermissionMask() { return permissionMask; }
 
     public String getId() {
         return id;

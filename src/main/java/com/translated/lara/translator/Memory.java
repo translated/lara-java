@@ -31,6 +31,7 @@ public class Memory {
     private final String ownerId;
     private final int collaboratorsCount;
     private final boolean isPersonal;
+    private final PermissionMask permissionMask;
 
     public Memory(String id, Date createdAt, Date updatedAt, Date sharedAt, String name, String externalId, String secret, String ownerId, int collaboratorsCount, Boolean isPersonal) {
         this.id = id;
@@ -43,7 +44,28 @@ public class Memory {
         this.ownerId = ownerId;
         this.collaboratorsCount = collaboratorsCount;
         this.isPersonal = Boolean.TRUE.equals(isPersonal);
+        this.permissionMask = null;
     }
+
+    public Memory(String id, Date createdAt, Date updatedAt, Date sharedAt, String name, String externalId, String secret, String ownerId, int collaboratorsCount, Boolean isPersonal, PermissionMask permissionMask) {
+        this.id = id;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.sharedAt = sharedAt;
+        this.name = name;
+        this.externalId = externalId;
+        this.secret = secret;
+        this.ownerId = ownerId;
+        this.collaboratorsCount = collaboratorsCount;
+        this.isPersonal = Boolean.TRUE.equals(isPersonal);
+        this.permissionMask = permissionMask;
+    }
+
+    /**
+     * Effective combined mask in GET list/detail; selected share's stored mask in GET /shares.
+     * @return the mask, or null when omitted, including non-GET responses.
+     */
+    public PermissionMask getPermissionMask() { return permissionMask; }
 
     public String getId() {
         return id;

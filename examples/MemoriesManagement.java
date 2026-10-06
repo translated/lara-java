@@ -196,13 +196,13 @@ public class MemoriesManagement {
                 // List every share visible to the caller: the account share, group shares and user shares
                 MemoryShares shares = lara.memories.getShares(memoryId);
                 if (shares.getAccount() != null) {
-                    System.out.println("👥 Account share '" + shares.getAccount().getShareName() + "' (" + shares.getAccount().getPermissions() + ")");
+                    System.out.println("👥 Account share '" + shares.getAccount().getShareName() + "' (" + shares.getAccount().getPermissionMask() + ")");
                 }
                 for (ResourceShareEntry group : shares.getGroups()) {
-                    System.out.println("👥 Group " + group.getName() + ": '" + group.getShareName() + "' (" + group.getPermissions() + ")");
+                    System.out.println("👥 Group " + group.getName() + ": '" + group.getShareName() + "' (" + group.getPermissionMask() + ")");
                 }
                 for (ResourceShareEntry user : shares.getUsers()) {
-                    System.out.println("👤 User " + user.getName() + ": '" + user.getShareName() + "' (" + user.getPermissions() + ")");
+                    System.out.println("👤 User " + user.getName() + ": '" + user.getShareName() + "' (" + user.getPermissionMask() + ")");
                 }
 
                 // Revoke the account/team share
