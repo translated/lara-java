@@ -12,10 +12,9 @@ public class Styleguide {
     private final Date createdAt;
     private final Date updatedAt;
     private final Date sharedAt;
-    private final boolean isPersonal;
     private final PermissionMask permissionMask;
 
-    public Styleguide(String id, String name, String content, String ownerId, Date createdAt, Date updatedAt, Boolean isPersonal) {
+    public Styleguide(String id, String name, String content, String ownerId, Date createdAt, Date updatedAt) {
         this.id = id;
         this.name = name;
         this.content = content;
@@ -23,11 +22,10 @@ public class Styleguide {
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.sharedAt = null;
-        this.isPersonal = Boolean.TRUE.equals(isPersonal);
         this.permissionMask = null;
     }
 
-    public Styleguide(String id, String name, String content, String ownerId, Date createdAt, Date updatedAt, Date sharedAt, Boolean isPersonal) {
+    public Styleguide(String id, String name, String content, String ownerId, Date createdAt, Date updatedAt, Date sharedAt) {
         this.id = id;
         this.name = name;
         this.content = content;
@@ -35,11 +33,10 @@ public class Styleguide {
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.sharedAt = sharedAt;
-        this.isPersonal = Boolean.TRUE.equals(isPersonal);
         this.permissionMask = null;
     }
 
-    public Styleguide(String id, String name, String content, String ownerId, Date createdAt, Date updatedAt, Date sharedAt, Boolean isPersonal, PermissionMask permissionMask) {
+    public Styleguide(String id, String name, String content, String ownerId, Date createdAt, Date updatedAt, Date sharedAt, PermissionMask permissionMask) {
         this.id = id;
         this.name = name;
         this.content = content;
@@ -47,7 +44,6 @@ public class Styleguide {
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.sharedAt = sharedAt;
-        this.isPersonal = Boolean.TRUE.equals(isPersonal);
         this.permissionMask = permissionMask;
     }
 
@@ -83,14 +79,6 @@ public class Styleguide {
 
     public Date getSharedAt() {
         return sharedAt;
-    }
-
-    /**
-     * The API sends is_personal: true and omits the key otherwise; it never sends false or null,
-     * so an absent field means "not personal" and is reported as FALSE rather than null.
-     */
-    public Boolean getIsPersonal() {
-        return Boolean.valueOf(isPersonal);
     }
 
     @Override

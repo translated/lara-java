@@ -30,10 +30,9 @@ public class Memory {
     private final String secret;
     private final String ownerId;
     private final int collaboratorsCount;
-    private final boolean isPersonal;
     private final PermissionMask permissionMask;
 
-    public Memory(String id, Date createdAt, Date updatedAt, Date sharedAt, String name, String externalId, String secret, String ownerId, int collaboratorsCount, Boolean isPersonal) {
+    public Memory(String id, Date createdAt, Date updatedAt, Date sharedAt, String name, String externalId, String secret, String ownerId, int collaboratorsCount) {
         this.id = id;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
@@ -43,11 +42,10 @@ public class Memory {
         this.secret = secret;
         this.ownerId = ownerId;
         this.collaboratorsCount = collaboratorsCount;
-        this.isPersonal = Boolean.TRUE.equals(isPersonal);
         this.permissionMask = null;
     }
 
-    public Memory(String id, Date createdAt, Date updatedAt, Date sharedAt, String name, String externalId, String secret, String ownerId, int collaboratorsCount, Boolean isPersonal, PermissionMask permissionMask) {
+    public Memory(String id, Date createdAt, Date updatedAt, Date sharedAt, String name, String externalId, String secret, String ownerId, int collaboratorsCount, PermissionMask permissionMask) {
         this.id = id;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
@@ -57,7 +55,6 @@ public class Memory {
         this.secret = secret;
         this.ownerId = ownerId;
         this.collaboratorsCount = collaboratorsCount;
-        this.isPersonal = Boolean.TRUE.equals(isPersonal);
         this.permissionMask = permissionMask;
     }
 
@@ -101,14 +98,6 @@ public class Memory {
 
     public int getCollaboratorsCount() {
         return collaboratorsCount;
-    }
-
-    /**
-     * The API sends is_personal: true and omits the key otherwise; it never sends false or null,
-     * so an absent field means "not personal" and is reported as FALSE rather than null.
-     */
-    public Boolean getIsPersonal() {
-        return Boolean.valueOf(isPersonal);
     }
 
     @Override

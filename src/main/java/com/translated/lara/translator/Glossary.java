@@ -28,39 +28,35 @@ public class Glossary {
     private final Date sharedAt;
     private final String name;
     private final String ownerId;
-    private final boolean isPersonal;
     private final PermissionMask permissionMask;
 
-    public Glossary(String id, Date createdAt, Date updatedAt, String name, String ownerId, Boolean isPersonal) {
+    public Glossary(String id, Date createdAt, Date updatedAt, String name, String ownerId) {
         this.id = id;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.sharedAt = null;
         this.name = name;
         this.ownerId = ownerId;
-        this.isPersonal = Boolean.TRUE.equals(isPersonal);
         this.permissionMask = null;
     }
 
-    public Glossary(String id, Date createdAt, Date updatedAt, Date sharedAt, String name, String ownerId, Boolean isPersonal) {
+    public Glossary(String id, Date createdAt, Date updatedAt, Date sharedAt, String name, String ownerId) {
         this.id = id;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.sharedAt = sharedAt;
         this.name = name;
         this.ownerId = ownerId;
-        this.isPersonal = Boolean.TRUE.equals(isPersonal);
         this.permissionMask = null;
     }
 
-    public Glossary(String id, Date createdAt, Date updatedAt, Date sharedAt, String name, String ownerId, Boolean isPersonal, PermissionMask permissionMask) {
+    public Glossary(String id, Date createdAt, Date updatedAt, Date sharedAt, String name, String ownerId, PermissionMask permissionMask) {
         this.id = id;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.sharedAt = sharedAt;
         this.name = name;
         this.ownerId = ownerId;
-        this.isPersonal = Boolean.TRUE.equals(isPersonal);
         this.permissionMask = permissionMask;
     }
 
@@ -92,14 +88,6 @@ public class Glossary {
 
     public String getOwnerId() {
         return ownerId;
-    }
-
-    /**
-     * The API sends is_personal: true and omits the key otherwise; it never sends false or null,
-     * so an absent field means "not personal" and is reported as FALSE rather than null.
-     */
-    public Boolean getIsPersonal() {
-        return Boolean.valueOf(isPersonal);
     }
 
     @Override
