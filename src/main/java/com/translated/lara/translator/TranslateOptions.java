@@ -29,6 +29,7 @@ public class TranslateOptions {
     private Boolean verbose = null;
     private TranslationStyle style = null;
     private Boolean reasoning = null;
+    private Object imageContext = null;
     private Map<String, String> headers = null;
     private Object metadata = null;
     private ProfanitiesDetect profanitiesDetect = null;
@@ -201,6 +202,28 @@ public class TranslateOptions {
         return this;
     }
 
+    /** Returns the image object or list sent as visual context. */
+    public Object getImageContext() {
+        return imageContext;
+    }
+
+    /** Non-empty context requires reasoning=true. Image validation is performed by the API. */
+    public TranslateOptions setImageContext(ImageContext imageContext) {
+        this.imageContext = imageContext;
+        return this;
+    }
+
+    /** At most one image; an empty list preserves text-only translation. */
+    public TranslateOptions setImageContext(List<ImageContext> imageContext) {
+        this.imageContext = imageContext;
+        return this;
+    }
+
+    public TranslateOptions setImageContext(ImageContext... imageContext) {
+        this.imageContext = imageContext;
+        return this;
+    }
+
     public ProfanitiesDetect getProfanitiesDetect() {
         return profanitiesDetect;
     }
@@ -261,6 +284,7 @@ public class TranslateOptions {
         params.set("verbose", verbose);
         params.set("style", TranslationStyle.toString(style));
         params.set("reasoning", reasoning);
+        params.set("image_context", imageContext);
         params.set("metadata", metadata);
         params.set("profanities_detect", ProfanitiesDetect.toString(profanitiesDetect));
         params.set("profanities_handling", ProfanitiesHandling.toString(profanitiesHandling));

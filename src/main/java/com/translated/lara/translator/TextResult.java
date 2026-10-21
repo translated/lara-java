@@ -337,6 +337,7 @@ public class TextResult {
     private final GlossariesMatchesValue glossariesMatches;
     private final ProfanitiesResult profanities;
     private final StyleguideResults styleguideResults;
+    private TextWarnings warnings;
 
     public TextResult(String contentType, String sourceLanguage, String translation, String[] adaptedTo, String[] glossaries) {
         this.contentType = contentType;
@@ -436,6 +437,10 @@ public class TextResult {
     public List<ProfanityDetectResult> getProfanitiesList() {
         if (profanities == null || profanities.getTarget() == null) return null;
         return profanities.getTarget().getList();
+    }
+
+    public TextWarnings getWarnings() {
+        return warnings;
     }
 
     public StyleguideResults getStyleguideResults() {
