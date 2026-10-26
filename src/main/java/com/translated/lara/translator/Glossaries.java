@@ -24,8 +24,38 @@ public class Glossaries {
         this.pollingInterval = pollingInterval;
     }
 
+    /**
+     * @deprecated Use {@link #listPaginated()} or {@link #listPaginated(ResourceQueryOptions)} instead.
+     */
+    @Deprecated
     public List<Glossary> list() throws LaraException {
         return client.get("/v2/glossaries").asList(Glossary.class);
+    }
+
+    /**
+     * Lists all glossaries in a single unpaginated collection.
+     * Use {@link #listPaginated(ResourceQueryOptions)} to enable pagination or filter by name.
+     */
+    public CollectionResult<Glossary> listPaginated() throws LaraException {
+        return listPaginated(null);
+    }
+
+    /**
+     * Lists glossaries with optional name filtering and pagination.
+     * Providing search, page or size enables pagination.
+     * Returns the complete list when options are null or all fields are unset.
+     * When pagination is enabled, an omitted page defaults to 1 and an omitted size defaults to 20.
+     */
+    public CollectionResult<Glossary> listPaginated(ResourceQueryOptions options) throws LaraException {
+        if (options == null)
+            options = new ResourceQueryOptions();
+        String query = new HttpParams<>()
+                .set("search", options.getSearch())
+                .set("page", options.getPage())
+                .set("size", options.getSize())
+                .toQueryString();
+        return client.get("/v2/glossaries" + (query.isEmpty() ? "" : "?" + query))
+                .asCollection(Glossary.class);
     }
 
     public Glossary create(String name) throws LaraException {

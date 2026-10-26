@@ -15,8 +15,38 @@ public class Styleguides {
         this.client = client;
     }
 
+    /**
+     * @deprecated Use {@link #listPaginated()} or {@link #listPaginated(ResourceQueryOptions)} instead.
+     */
+    @Deprecated
     public List<Styleguide> list() throws LaraException {
         return client.get("/v2/styleguides").asList(Styleguide.class);
+    }
+
+    /**
+     * Lists all styleguides in a single unpaginated collection.
+     * Use {@link #listPaginated(ResourceQueryOptions)} to enable pagination or filter by name.
+     */
+    public CollectionResult<Styleguide> listPaginated() throws LaraException {
+        return listPaginated(null);
+    }
+
+    /**
+     * Lists styleguides with optional name filtering and pagination.
+     * Providing search, page or size enables pagination.
+     * Returns the complete list when options are null or all fields are unset.
+     * When pagination is enabled, an omitted page defaults to 1 and an omitted size defaults to 20.
+     */
+    public CollectionResult<Styleguide> listPaginated(ResourceQueryOptions options) throws LaraException {
+        if (options == null)
+            options = new ResourceQueryOptions();
+        String query = new HttpParams<>()
+                .set("search", options.getSearch())
+                .set("page", options.getPage())
+                .set("size", options.getSize())
+                .toQueryString();
+        return client.get("/v2/styleguides" + (query.isEmpty() ? "" : "?" + query))
+                .asCollection(Styleguide.class);
     }
 
     public Styleguide get(String id) throws LaraException {

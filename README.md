@@ -516,6 +516,40 @@ InputStream audioStream = lara.audio.download(audio.getId());
 
 ### 🧠 Memory Management
 
+List memories with optional name filtering and pagination:
+
+`listPaginated` supports optional pagination. Called without options, with `null`, or with
+`search`, `page` and `size` all unset, it returns the complete list of memories without pagination.
+Providing `search`, `page` or `size` enables pagination.
+
+```java
+// No query options: listPaginated returns the complete list of memories without pagination.
+CollectionResult<Memory> memoryResult = lara.memories.listPaginated();
+List<Memory> memories = memoryResult.getItems();
+long memoryTotal = memoryResult.getTotal();
+
+// Providing page or size enables pagination (page starts at 1; size: 1-200).
+// The missing parameter defaults to page 1 or size 20.
+CollectionResult<Memory> memoryPage = lara.memories.listPaginated(new ResourceQueryOptions().setPage(2).setSize(50));
+CollectionResult<Memory> memoryDefaultSize = lara.memories.listPaginated(new ResourceQueryOptions().setPage(2));
+CollectionResult<Memory> memoryFirstPage = lara.memories.listPaginated(new ResourceQueryOptions().setSize(50));
+
+// Pass search to filter by displayed name (case- and accent-insensitive).
+// It matches substrings and preserves spaces.
+// Combine search with page and size to paginate matching results.
+// If omitted, page defaults to 1 and size to 20.
+CollectionResult<Memory> memorySearch = lara.memories.listPaginated(new ResourceQueryOptions()
+    .setSearch("Marketing")
+    .setPage(2)
+    .setSize(50));
+
+// list() is deprecated; use listPaginated() instead.
+```
+
+Import `ResourceQueryOptions` and `CollectionResult` from `com.translated.lara.translator`.
+`getTotal()` counts all matching memories, including when the requested page is empty.
+`getPage()` and `getSize()` describe the current page and are `null` when pagination is disabled.
+
 ```java
 // Create memory
 Memory memory = lara.memories.create("MyMemory");
@@ -569,6 +603,40 @@ lara.memories.revokeAccountShare(memory.getId());
 ```
 
 ### 📚 Glossary Management
+
+List glossaries with optional name filtering and pagination:
+
+`listPaginated` supports optional pagination. Called without options, with `null`, or with
+`search`, `page` and `size` all unset, it returns the complete list of glossaries without pagination.
+Providing `search`, `page` or `size` enables pagination.
+
+```java
+// No query options: listPaginated returns the complete list of glossaries without pagination.
+CollectionResult<Glossary> glossaryResult = lara.glossaries.listPaginated();
+List<Glossary> glossaries = glossaryResult.getItems();
+long glossaryTotal = glossaryResult.getTotal();
+
+// Providing page or size enables pagination (page starts at 1; size: 1-200).
+// The missing parameter defaults to page 1 or size 20.
+CollectionResult<Glossary> glossaryPage = lara.glossaries.listPaginated(new ResourceQueryOptions().setPage(2).setSize(50));
+CollectionResult<Glossary> glossaryDefaultSize = lara.glossaries.listPaginated(new ResourceQueryOptions().setPage(2));
+CollectionResult<Glossary> glossaryFirstPage = lara.glossaries.listPaginated(new ResourceQueryOptions().setSize(50));
+
+// Pass search to filter by displayed name (case- and accent-insensitive).
+// It matches substrings and preserves spaces.
+// Combine search with page and size to paginate matching results.
+// If omitted, page defaults to 1 and size to 20.
+CollectionResult<Glossary> glossarySearch = lara.glossaries.listPaginated(new ResourceQueryOptions()
+    .setSearch("Marketing")
+    .setPage(2)
+    .setSize(50));
+
+// list() is deprecated; use listPaginated() instead.
+```
+
+Import `ResourceQueryOptions` and `CollectionResult` from `com.translated.lara.translator`.
+`getTotal()` counts all matching glossaries, including when the requested page is empty.
+`getPage()` and `getSize()` describe the current page and are `null` when pagination is disabled.
 
 ```java
 // Create glossary
@@ -628,10 +696,41 @@ lara.glossaries.revokeAccountShare(glossary.getId());
 
 Styleguides let you apply custom translation style rules. They can be created, listed, retrieved, updated, and deleted through the SDK.
 
-```java
-// List all styleguides
-List<Styleguide> styleguides = lara.styleguides.list();
+List styleguides with optional name filtering and pagination:
 
+`listPaginated` supports optional pagination. Called without options, with `null`, or with
+`search`, `page` and `size` all unset, it returns the complete list of styleguides without pagination.
+Providing `search`, `page` or `size` enables pagination.
+
+```java
+// No query options: listPaginated returns the complete list of styleguides without pagination.
+CollectionResult<Styleguide> styleguideResult = lara.styleguides.listPaginated();
+List<Styleguide> styleguides = styleguideResult.getItems();
+long styleguideTotal = styleguideResult.getTotal();
+
+// Providing page or size enables pagination (page starts at 1; size: 1-200).
+// The missing parameter defaults to page 1 or size 20.
+CollectionResult<Styleguide> styleguidePage = lara.styleguides.listPaginated(new ResourceQueryOptions().setPage(2).setSize(50));
+CollectionResult<Styleguide> styleguideDefaultSize = lara.styleguides.listPaginated(new ResourceQueryOptions().setPage(2));
+CollectionResult<Styleguide> styleguideFirstPage = lara.styleguides.listPaginated(new ResourceQueryOptions().setSize(50));
+
+// Pass search to filter by displayed name (case- and accent-insensitive).
+// It matches substrings and preserves spaces.
+// Combine search with page and size to paginate matching results.
+// If omitted, page defaults to 1 and size to 20.
+CollectionResult<Styleguide> styleguideSearch = lara.styleguides.listPaginated(new ResourceQueryOptions()
+    .setSearch("Marketing")
+    .setPage(2)
+    .setSize(50));
+
+// list() is deprecated; use listPaginated() instead.
+```
+
+Import `ResourceQueryOptions` and `CollectionResult` from `com.translated.lara.translator`.
+`getTotal()` counts all matching styleguides, including when the requested page is empty.
+`getPage()` and `getSize()` describe the current page and are `null` when pagination is disabled.
+
+```java
 // Get a specific styleguide by ID
 Styleguide styleguide = lara.styleguides.get("stg_1A2b3C4d5E6f7G8h9I0jKl");
 

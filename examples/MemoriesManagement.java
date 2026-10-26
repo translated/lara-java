@@ -52,9 +52,24 @@ public class MemoriesManagement {
             System.out.println("📝 Updated name: '" + memory.getName() + "' -> '" + updatedMemory.getName() + "'");
             System.out.println();
 
-            // List all memories
-            List<Memory> memories = lara.memories.list();
-            System.out.println("📝 Total memories: " + memories.size());
+            // No query options: listPaginated returns the complete list without pagination.
+            CollectionResult<Memory> memoryResult = lara.memories.listPaginated();
+            List<Memory> memories = memoryResult.getItems();
+            System.out.println("📝 Total memories: " + memoryResult.getTotal());
+
+            // Request a page; when only page or size is provided, the other defaults to 1 or 20.
+            CollectionResult<Memory> memoryPage = lara.memories.listPaginated(
+                    new ResourceQueryOptions().setPage(1).setSize(50));
+            System.out.println("Page " + memoryPage.getPage() + ": " + memoryPage.getItems().size()
+                    + " of " + memoryPage.getTotal() + " memories");
+
+            // Search the displayed name (case- and accent-insensitive substring match).
+            // Spaces are preserved; search alone enables page 1 with size 20.
+            CollectionResult<Memory> memorySearch = lara.memories.listPaginated(new ResourceQueryOptions()
+                    .setSearch("Demo")
+                    .setPage(1)
+                    .setSize(20));
+            System.out.println("Matching memories: " + memorySearch.getTotal());
             System.out.println();
 
             // Example 2: Adding translations

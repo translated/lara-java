@@ -1,5 +1,7 @@
 import com.translated.lara.Credentials;
 import com.translated.lara.errors.LaraException;
+import com.translated.lara.translator.CollectionResult;
+import com.translated.lara.translator.ResourceQueryOptions;
 import com.translated.lara.translator.ResourceShareEntry;
 import com.translated.lara.translator.Styleguide;
 import com.translated.lara.translator.StyleguideShares;
@@ -39,8 +41,24 @@ public class StyleguidesManagement {
             System.out.println("Created styleguide: " + styleguide.getName() + " (ID: " + styleguide.getId() + ")");
             styleguideId = styleguide.getId();
 
-            List<Styleguide> styleguides = lara.styleguides.list();
-            System.out.println("Total styleguides: " + styleguides.size());
+            // No query options: listPaginated returns the complete list without pagination.
+            CollectionResult<Styleguide> styleguideResult = lara.styleguides.listPaginated();
+            List<Styleguide> styleguides = styleguideResult.getItems();
+            System.out.println("Total styleguides: " + styleguideResult.getTotal());
+
+            // Request a page; when only page or size is provided, the other defaults to 1 or 20.
+            CollectionResult<Styleguide> styleguidePage = lara.styleguides.listPaginated(
+                    new ResourceQueryOptions().setPage(1).setSize(50));
+            System.out.println("Page " + styleguidePage.getPage() + ": " + styleguidePage.getItems().size()
+                    + " of " + styleguidePage.getTotal() + " styleguides");
+
+            // Search the displayed name (case- and accent-insensitive substring match).
+            // Spaces are preserved; search alone enables page 1 with size 20.
+            CollectionResult<Styleguide> styleguideSearch = lara.styleguides.listPaginated(new ResourceQueryOptions()
+                    .setSearch("Demo")
+                    .setPage(1)
+                    .setSize(20));
+            System.out.println("Matching styleguides: " + styleguideSearch.getTotal());
             System.out.println();
 
             System.out.println("=== Styleguide Operations ===");

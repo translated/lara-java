@@ -43,9 +43,24 @@ public class GlossariesManagement {
             System.out.println("✅ Created glossary: " + glossary.getName() + " (ID: " + glossary.getId() + ")");
             glossaryId = glossary.getId();
             
-            // List all glossaries
-            List<Glossary> glossaries = lara.glossaries.list();
-            System.out.println("📝 Total glossaries: " + glossaries.size());
+            // No query options: listPaginated returns the complete list without pagination.
+            CollectionResult<Glossary> glossaryResult = lara.glossaries.listPaginated();
+            List<Glossary> glossaries = glossaryResult.getItems();
+            System.out.println("📝 Total glossaries: " + glossaryResult.getTotal());
+
+            // Request a page; when only page or size is provided, the other defaults to 1 or 20.
+            CollectionResult<Glossary> glossaryPage = lara.glossaries.listPaginated(
+                    new ResourceQueryOptions().setPage(1).setSize(50));
+            System.out.println("Page " + glossaryPage.getPage() + ": " + glossaryPage.getItems().size()
+                    + " of " + glossaryPage.getTotal() + " glossaries");
+
+            // Search the displayed name (case- and accent-insensitive substring match).
+            // Spaces are preserved; search alone enables page 1 with size 20.
+            CollectionResult<Glossary> glossarySearch = lara.glossaries.listPaginated(new ResourceQueryOptions()
+                    .setSearch("Demo")
+                    .setPage(1)
+                    .setSize(20));
+            System.out.println("Matching glossaries: " + glossarySearch.getTotal());
             System.out.println();
 
             // Example 2: Glossary operations

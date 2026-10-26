@@ -27,8 +27,38 @@ public class Memories {
         this.pollingInterval = pollingInterval;
     }
 
+    /**
+     * @deprecated Use {@link #listPaginated()} or {@link #listPaginated(ResourceQueryOptions)} instead.
+     */
+    @Deprecated
     public List<Memory> list() throws LaraException {
         return client.get("/v2/memories").asList(Memory.class);
+    }
+
+    /**
+     * Lists all memories in a single unpaginated collection.
+     * Use {@link #listPaginated(ResourceQueryOptions)} to enable pagination or filter by name.
+     */
+    public CollectionResult<Memory> listPaginated() throws LaraException {
+        return listPaginated(null);
+    }
+
+    /**
+     * Lists memories with optional name filtering and pagination.
+     * Providing search, page or size enables pagination.
+     * Returns the complete list when options are null or all fields are unset.
+     * When pagination is enabled, an omitted page defaults to 1 and an omitted size defaults to 20.
+     */
+    public CollectionResult<Memory> listPaginated(ResourceQueryOptions options) throws LaraException {
+        if (options == null)
+            options = new ResourceQueryOptions();
+        String query = new HttpParams<>()
+                .set("search", options.getSearch())
+                .set("page", options.getPage())
+                .set("size", options.getSize())
+                .toQueryString();
+        return client.get("/v2/memories" + (query.isEmpty() ? "" : "?" + query))
+                .asCollection(Memory.class);
     }
 
     public Memory create(String name) throws LaraException {
