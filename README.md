@@ -250,6 +250,19 @@ TranslateOptions options = new TranslateOptions()
 TextResult result = lara.translate("Hello", "en-US", "fr-FR", options);
 ```
 
+#### Reasoning Effort
+
+Set `effort` to `low`, `medium`, or `high` to control translation reasoning effort.
+Reasoning must be enabled. Omit the option to use the server default; the API
+validates the combination.
+
+```java
+TranslateOptions options = new TranslateOptions()
+    .setReasoning(true)
+    .setEffort(ReasoningEffort.HIGH);
+TextResult result = lara.translate("Hello", "en-US", "it-IT", options);
+```
+
 #### Text Translation with Image Context
 
 Pass `setImageContext` to use an image as visual context for translating text, with reasoning enabled:
