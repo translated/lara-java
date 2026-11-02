@@ -29,7 +29,7 @@ public class TranslateOptions {
     private Boolean verbose = null;
     private TranslationStyle style = null;
     private Boolean reasoning = null;
-    private ReasoningEffort effort = null;
+    private ReasoningEffort reasoningEffort = null;
     private Object imageContext = null;
     private Map<String, String> headers = null;
     private Object metadata = null;
@@ -202,13 +202,13 @@ public class TranslateOptions {
         return this;
     }
 
-    public ReasoningEffort getEffort() {
-        return effort;
+    public ReasoningEffort getReasoningEffort() {
+        return reasoningEffort;
     }
 
     /** Requires reasoning=true. Pass null to use the server default. */
-    public TranslateOptions setEffort(ReasoningEffort effort) {
-        this.effort = effort;
+    public TranslateOptions setReasoningEffort(ReasoningEffort reasoningEffort) {
+        this.reasoningEffort = reasoningEffort;
         return this;
     }
 
@@ -303,7 +303,7 @@ public class TranslateOptions {
         params.set("verbose", verbose);
         params.set("style", TranslationStyle.toString(style));
         params.set("reasoning", reasoning);
-        params.set("effort", ReasoningEffort.toString(effort));
+        params.set("effort", ReasoningEffort.toString(reasoningEffort));
         params.set("image_context", imageContext);
         params.set("metadata", metadata);
         params.set("profanities_detect", ProfanitiesDetect.toString(profanitiesDetect));
