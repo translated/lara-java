@@ -99,10 +99,18 @@ public class TranslateOptions {
         return this;
     }
 
+    /**
+     * @deprecated This option is deprecated.
+     */
+    @Deprecated
     public Boolean getMultiline() {
         return multiline;
     }
 
+    /**
+     * @deprecated This option is deprecated.
+     */
+    @Deprecated
     public TranslateOptions setMultiline(boolean multiline) {
         this.multiline = multiline;
         return this;

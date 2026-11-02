@@ -805,7 +805,6 @@ public class TranslateOptions {
     setInstructions(String... instructions)     // Translation instructions
     setStyle(TranslationStyle style)            // Translation style (FLUID, FAITHFUL, CREATIVE)
     setContentType(String contentType)          // Content type (text/plain, text/html, etc.)
-    setMultiline(Boolean multiline)             // Enable multiline translation
     setTimeoutMs(Long timeoutMs)                // Request timeout in milliseconds
     setSourceHint(String sourceHint)            // Hint for source language detection
     setNoTrace(Boolean noTrace)                 // Disable request tracing
